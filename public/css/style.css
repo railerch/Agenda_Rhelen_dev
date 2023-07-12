@@ -1,0 +1,35 @@
+#container-inicio {
+    box-shadow: 0 0 15px #00000050;
+    padding: 10px 10px 25px 10px;
+    border-radius: 0 0 10px 10px;
+}
+
+#progreso-registro {
+    min-height: 45px;
+    background-color: aquamarine;
+}
+
+#progreso-registro .paso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    background-color: darkcyan;
+    color: #fff;
+    font-size: 80%;
+    font-weight: bold;
+}
+
+.estacion-img {
+    max-height: 300px;
+}
+
+#calendar {
+    margin-top: 40px;
+}
+
+.event a {
+    background-color: #42B373 !important;
+    background-image: none !important;
+    color: #ffffff !important;
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- JQUERY -->
+    <script type="text/javascript" src="jquery/jquery.js" defer></script>
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="bs/css/bootstrap.css">
+    <script type="text/javascript" src="bs/js/bootstrap.bundle.js" defer></script>
+    <link rel="stylesheet" href="bs-i/css/bootstrap-icons.css">
+
+    <!-- CUSTOM -->
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/main.js" defer></script>
+
+    <title>Arnica/Rhelen Data Entry</title>
+</head>
+
+<body>
+    <div class="container my-3">
+        <!-- BARRA DE PROGRESO -->
+        <div id="progreso-registro" class="col-12 d-flex justify-content-center">
+            <div class="col-3 paso" data-paso="1" style="visibility: hidden;"><span>
+                    <i class="bi bi-calendar me-2"></i> 1. Reserva</span>
+            </div>
+            <div class="col-3 paso" data-paso="2" style="visibility: hidden;">
+                <i class="bi bi-person-lines-fill me-2"></i> 2. Datos de registro
+            </div>
+            <div class="col-3 paso" data-paso="3" style="visibility: hidden;">
+                <i class="bi bi-check-lg me-2"></i> 3. Validar datos
+            </div>
+            <div class="col-3 paso" data-paso="4" style="visibility: hidden;">
+                <i class="bi bi-hand-thumbs-up me-2"></i> 4. Fin del registro
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- PANTALLAS-->
+        <div style="min-height:55vh">
+            <!-- PRELOADER -->
+            <div id="preloader-div"></div>
+
+            <!-- PANTALLA 01 -->
+            <div class="pantalla" data-screen="1" style="display:none">
+                <h3><i class="bi bi-calendar"></i> Indique fecha, hora y estación</h3>
+                <span>Seleccione a continuación la hora y fecha que mas se ajusten a su conveniencia y haga clic
+                    en
+                    siguiente.</span>
+
+                <div class="d-flex flex-wrap-reverse justify-content-center my-3">
+                    <!-- FECHA / HORA / ESTACION -->
+                    <div id="hora-fecha-div" class="col-md-6 mt-3 mt-md-0 p-1">
+
+                        <!-- ESTACION -->
+                        <div class="input-group">
+                            <div class="input-group-text col-4 col-md-2">Estaciones</div>
+                            <select name="estacion" class="form-select form-select">
+                                <option value="sinEstacion" selected>Seleccione estación</option>
+                                <% estaciones.forEach( st=> { %>
+                                    <option value='<%= st %>'>
+                                        <%= st %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+
+                        <!-- FECHA -->
+                        <div class="input-group mt-3">
+                            <div class="input-group-text col-4 col-md-2">Fechas </div>
+                            <input name="fecha-cita" class="form-control" type="date">
+                        </div>
+
+                        <!-- HORA -->
+                        <div class="input-group mt-3">
+                            <div class="input-group-text col-4 col-md-2">Horarios</div>
+                            <select name="hora-cita" class="form-select form-select">
+                                <option value="" selected>Seleccione la hora</option>
+                                <% horarios.forEach( hr=> { %>
+                                    <option value=<%=hr %>>
+                                        <%= hr %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- IMAGEN DE LA ESTACION -->
+                    <div id="estacion-img-div" class="col-md-6 p-1">
+                        <div class="d-flex justify-content-center">
+                            <img id="estacion-img" class="img-fluid rounded estacion-img" src="img/sinEstacion.jpg"
+                                alt="Imagen inicial">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 02 -->
+            <div class="pantalla" data-screen="2" style="display:none">
+                <h3><i class="bi bi-person-lines-fill"></i> Datos de registro</h3>
+                <span>Complete el siguiente formulario con los datos solicitados para agendar su cita para el dia
+                    indicado.</span>
+                <div class="col-12">
+                    <form id="datos-registro-frm" class="d-grid gap-2 my-3">
+                        <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Nombre</div>
+                                <input class="form-control" type="text" name="nombre" placeholder="Nombre completo">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Cedula</div>
+                                <input class="form-control" type="text" name="cedula" placeholder="V15999999">
+                            </div>
+                        </div>
+
+                        <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Edad</div>
+                                <input class="form-control" type="number" name="edad">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Genero</div>
+                                <select class="form-select form-select" name="genero">
+                                    <option value="Prefiero no decirlo" selected>Prefiero no decirlo</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Teléfono</div>
+                                <input class="form-control" type="text" name="telefono" placeholder="04149999999">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Correo</div>
+                                <input class="form-control" type="mail" name="correo" placeholder="usuario@dominio.com">
+                            </div>
+                        </div>
+
+                        <div class="form-grou d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Disciplina</div>
+                                <input class="form-control" type="text" name="disciplina">
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Categoria</div>
+                                <input class="form-control" type="text" name="categoria">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PANTALLA 03 -->
+            <div class="pantalla" data-screen="3" style="display:none">
+                <h3><i class="bi bi-check-lg"></i> Validar datos</h3>
+                <span>Por favor confirme que los datos suministrados son correctos y luego haga clic en
+                    <b>Finalizar</b>, en caso contrario pulse <b>Atras</b> y realice las correcciones necesarias para
+                    completar su registro.</span>
+
+                <div id="datos-para-confirmar" class="mt-3">
+                    <!-- Datos generados con JS -->
+                </div>
+            </div>
+
+            <!-- PANTALLA 04 -->
+            <div class="pantalla" data-screen="4" style="display:none">
+                <h3><i class="bi bi-hand-thumbs-up"></i> Registro finalizado exitosamente</h3>
+                <span>Gracias por agendar con nosotros, le hemos enviado un correo con los detalles del registro.</span>
+                <img class="img-fluid my-3" src="img/bannerFinal.jpg" alt="Banner principal">
+            </div>
+
+            <!-- MODAL AVISOS -->
+            <div class="modal fade" id="datos-incompletos-modal" tabindex="-1" role="dialog"
+                aria-labelledby="modalTitleId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="alert alert-danger m-0" role="alert">
+                                <b><i class="bi bi-exclamation-triangle"></i> Ud. debe proporcionar todos los datos
+                                    solicitados para poder continuar.</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- BOTONES DE CONTROL DE AVANCE -->
+        <div id="avance-btn"
+            class="d-flex flex-wrap-reverse justify-content-center justify-content-md-end d-grid gap-2">
+
+            <button id="atras-btn" class="btn btn-outline-secondary btn-lg control-btn" data-direction="atras"
+                role="button" style="display:none">
+                <i class="bi bi-arrow-left"></i>
+                Atras
+            </button>
+
+            <button id="adelante-btn" class="btn btn-outline-primary btn-lg control-btn" data-direction="adelante"
+                role="button">
+                <i class="bi bi-arrow-right"></i>
+                Siguiente
+            </button>
+
+            <button id="finalizar-btn" class="btn btn-outline-success btn-lg control-btn" data-direction="finalizar"
+                role="button" style="display:none">
+                <i class="bi bi-check-lg"></i>
+                Finalizar
+            </button>
+
+            <!-- VOLVER A LA PAGINA DE INICIO -->
+            <a id="pagina-principal-btn" href="http://10.80.35.24:8000" style="display:none;text-decoration: none;">
+                <button class="btn btn-outline-primary btn-lg" role="button">
+                    <i class="bi bi-arrow-return-left"></i>
+                    Pagina de inicio
+                </button>
+            </a>
+
+        </div>
+    </div>
+</body>
+
+</html>

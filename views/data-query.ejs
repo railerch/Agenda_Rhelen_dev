@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- JQUERY -->
+    <script type="text/javascript" src="jquery/jquery.js" defer></script>
+    <script type="text/javascript" src="js/jquery.dataTables.min.js" defer></script>
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="bs/css/bootstrap.css">
+    <link rel="stylesheet" href="bs-i/css/bootstrap-icons.css">
+    <script type="text/javascript" src="bs/js/bootstrap.bundle.js" defer></script>
+
+    <!-- DATATABLES JS -->
+    <link rel="stylesheet" href="css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/buttons.bootstrap5.min.css">
+    <script type="text/javascript" src="js/dataTables.buttons.min.js" defer></script>
+    <script type="text/javascript" src="js/jszip.min.js" defer></script>
+    <script type="text/javascript" src="js/pdfmake.min.js" defer></script>
+    <script type="text/javascript" src="js/vfs_fonts.js" defer></script>
+    <script type="text/javascript" src="js/dataTables.bootstrap5.min.js" defer></script>
+    <script type="text/javascript" src="js/buttons.html5.min.js" defer></script>
+    <script type="text/javascript" src="js/buttons.print.min.js" defer></script>
+    <script type="text/javascript" src="js/buttons.colVis.js" defer></script>
+
+    <!-- CUSTOM -->
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/main.js" defer></script>
+
+    <title>Arnica/Rhelen Data Entry</title>
+</head>
+
+<body>
+    <div id="container-inicio" class="container">
+        <h3 class="text-muted"><i class="bi bi-database"></i> Repositorio de datos Arnica</h3>
+        <hr>
+        <div class="table-responsive">
+            <table id="registros-agenda-tbl" class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha Registro</th>
+                        <th>Nombre</th>
+                        <th>Cedula</th>
+                        <th>Edad</th>
+                        <th>Genero</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Disciplina</th>
+                        <th>Categoria</th>
+                        <th>Estación</th>
+                        <th>Fecha cita</th>
+                        <th>Hora cita</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- REGISTROS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="login-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId"><i class="bi bi-person"></i> ADMIN LOGIN</h5>
+                </div>
+                <div class="modal-body">
+
+                    <div id="login-err-alert" class="alert alert-danger" role="alert" style="display:none">
+                        <strong>Datos incorrectos.</strong>
+                    </div>
+
+                    <form id="admin-login-frm">
+                        <input type="text" class="form-control" name="usuario" id="usuario" placeholder="Usuario">
+                        <input type="password" class="form-control mt-2" name="clave" id="clave" placeholder="Clave">
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <a href="/" target="_self">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i
+                                class="bi bi-arrow-90deg-left"></i> Pagina
+                            principal</button>
+                    </a>
+                    <button id="admin-login-btn" type="button" class="btn btn-success"><i class="bi bi-door-open"></i>
+                        Entrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
