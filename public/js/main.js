@@ -6,7 +6,6 @@ window.onload = () => {
     if (window.location.pathname.includes("/dataentry")) {
         // AVANCE Y RETORNO ENTRE PANTALLAS
         fn.preloader();
-        // sessionStorage.removeItem("datosRegistro");
         sessionStorage.setItem("pantallaActual", 1);
         document.querySelector("div[data-paso='1']").style.visibility = "visible";
         document.querySelector("div[data-screen='1']").style.display = "block";
@@ -30,6 +29,8 @@ window.onload = () => {
                             document.getElementById("adelante-btn").style.display = "inline"
                         }
 
+                        fn.mostrarOcultarPantallas(pantAct, next);
+                        sessionStorage.setItem("pantallaActual", next);
                         break;
                     case "adelante":
                         next = pantAct == 4 ? pantAct : pantAct + 1;
@@ -44,24 +45,32 @@ window.onload = () => {
                             document.getElementById("finalizar-btn").style.display = "none"
                         }
 
+                        fn.mostrarOcultarPantallas(pantAct, next);
+                        sessionStorage.setItem("pantallaActual", next);
                         break;
                     case "finalizar":
-                        next = 4;
-                        btn.style.display = "none";
-                        document.getElementById("atras-btn").style.display = "none";
-                        document.getElementById("adelante-btn").style.display = "none";
-                        document.getElementById("pagina-principal-btn").style.display = "inline";
+                        // Registrar datos de cita en BD
+                        let tmp = JSON.parse(sessionStorage.getItem("datosRegistro"));
+                        let datos = new URLSearchParams(tmp).toString();
+
+                        fetch(`${serverAPI}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
+                            .then(res => res.json())
+                            .then(res => {
+                                next = 4;
+                                fn.mostrarOcultarPantallas(pantAct, next);
+                                sessionStorage.setItem("pantallaActual", next);
+                                sessionStorage.removeItem("datosRegistro");
+
+                                btn.style.display = "none";
+                                document.getElementById("atras-btn").style.display = "none";
+                                document.getElementById("adelante-btn").style.display = "none";
+                                document.getElementById("pagina-principal-btn").style.display = "inline";
+                            }).catch(err => {
+                                console.log("HA OCURRIDO UN ERROR: " + err);
+                            })
+
                         break;
                 }
-
-                // Almacenar nueva pantalla actual
-                sessionStorage.setItem("pantallaActual", next);
-
-                // Desplazarse entre pantallas
-                document.querySelector(`div[data-paso='${pantAct}']`).style.visibility = "hidden";
-                document.querySelector(`div[data-paso='${next}']`).style.visibility = "visible";
-                document.querySelector(`div[data-screen='${pantAct}']`).style.display = "none";
-                document.querySelector(`div[data-screen='${next}']`).style.display = "block";
                 fn.preloader(false);
             })
         })
@@ -102,24 +111,21 @@ window.onload = () => {
             // Eliminar hora del dataSet generado
             dataSet.delete("hora_cita");
         })
-
-        // REGISTRAR DATOS DE CITA EN BD
-        document.getElementById("finalizar-btn").addEventListener("click", function () {
-            let tmp = JSON.parse(sessionStorage.getItem("datosRegistro"));
-            let datos = new URLSearchParams(tmp).toString();
-
-            fetch(`${serverAPI}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
-                .then(res => res.json())
-                .then(res => {
-                    console.log(res);
-                }).catch(err => {
-                    console.log("HA OCURRIDO UN ERROR: " + err);
-                })
-        })
     }
 
     // TABLA DE REGISTROS
     if (window.location.pathname.includes("/dataquery")) {
+        // Usar Cookies
+        document.cookie.split(";").forEach(cookie => {
+            if (!cookie.includes("agendaRhelen")) {
+                let exp = new Date(Date.now() + (86400000 * 3)).toUTCString();
+                document.cookie = `username=Admin;expires=${exp};path=/`;
+                document.cookie = `site=agendaRhelen;expires=${exp};path=/`;
+            } else {
+                console.info("Cookies already set.");
+            }
+        })
+
         // Datatables
         $(".table").DataTable({
             scrollX: true,
@@ -165,23 +171,5 @@ window.onload = () => {
                 }, 2000)
             }
         })
-
-        // Consultar registros actuales
-        fetch(`${serverAPI}/get`)
-            .then(res => res.json())
-            .then(res => {
-                let agendaBodyTbl = document.querySelector("#registros-agenda-tbl tbody");
-                res.forEach(reg => {
-                    let tr = document.createElement("tr");
-                    for (let col in reg) {
-                        let td = document.createElement("td");
-                        td.innerText = reg[col];
-                        tr.appendChild(td);
-                    }
-                    agendaBodyTbl.appendChild(tr)
-                })
-            }).catch(err => {
-                console.log("HA OCURRIDO UN ERROR: " + err);
-            })
     }
 }
