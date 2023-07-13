@@ -56,3 +56,10 @@ export function datos_de_registro() {
     }
 }
 
+export function mostrarOcultarPantallas(act, next) {
+    document.querySelector(`div[data-paso='${act}']`).style.visibility = "hidden";
+    document.querySelector(`div[data-paso='${next}']`).style.visibility = "visible";
+    document.querySelector(`div[data-screen='${act}']`).style.display = "none";
+    document.querySelector(`div[data-screen='${next}']`).style.display = "block";
+}
+

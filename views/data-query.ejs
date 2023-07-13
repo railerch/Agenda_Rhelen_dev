@@ -58,7 +58,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- REGISTROS -->
+                    <% for(let reg of registros) { %>
+                        <tr>
+                            <% for(let col in reg) { %>
+                                <td>
+                                    <%= reg[col] %>
+                                </td>
+                                <% } %>
+                        </tr>
+                        <% } %>
                 </tbody>
             </table>
         </div>
