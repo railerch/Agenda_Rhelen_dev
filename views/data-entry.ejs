@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- JQUERY -->
-    <script type="text/javascript" src="jquery/jquery.js" defer></script>
+    <script type="text/javascript" src="<%= server %>jquery/jquery.js" defer></script>
 
     <!-- BOOTSTRAP -->
-    <link rel="stylesheet" href="bs/css/bootstrap.css">
-    <script type="text/javascript" src="bs/js/bootstrap.bundle.js" defer></script>
-    <link rel="stylesheet" href="bs-i/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="<%= server %>bs/css/bootstrap.css">
+    <script type="text/javascript" src="<%= server %>bs/js/bootstrap.bundle.js" defer></script>
+    <link rel="stylesheet" href="<%= server %>bs-i/css/bootstrap-icons.css">
 
     <!-- CUSTOM -->
-    <link rel="stylesheet" href="css/style.css">
-    <script type="module" src="js/main.js" defer></script>
+    <link rel="stylesheet" href="<%= server %>css/style.css">
+    <script type="module" src="<%= server %>js/main.js" defer></script>
 
     <title>Arnica/Rhelen Data Entry</title>
 </head>
@@ -92,8 +92,8 @@
                     <!-- IMAGEN DE LA ESTACION -->
                     <div id="estacion-img-div" class="col-md-6 p-1">
                         <div class="d-flex justify-content-center">
-                            <img id="estacion-img" class="img-fluid rounded estacion-img" src="img/sinEstacion.jpg"
-                                alt="Imagen inicial">
+                            <img id="estacion-img" class="img-fluid rounded estacion-img"
+                                src="<%= server %>img/sinEstacion.jpg" alt="Imagen inicial">
                         </div>
                     </div>
                 </div>
@@ -173,7 +173,7 @@
             <div class="pantalla" data-screen="4" style="display:none">
                 <h3><i class="bi bi-hand-thumbs-up"></i> Registro finalizado exitosamente</h3>
                 <span>Gracias por agendar con nosotros, le hemos enviado un correo con los detalles del registro.</span>
-                <img class="img-fluid my-3" src="img/bannerFinal.jpg" alt="Banner principal">
+                <img class="img-fluid my-3" src="<%= server %>img/bannerFinal.jpg" alt="Banner principal">
             </div>
 
             <!-- MODAL AVISOS -->
@@ -217,7 +217,7 @@
             </button>
 
             <!-- VOLVER A LA PAGINA DE INICIO -->
-            <a id="pagina-principal-btn" href="http://10.80.35.24:8000" style="display:none;text-decoration: none;">
+            <a id="pagina-principal-btn" href="<%= server %>" style="display:none;text-decoration: none;">
                 <button class="btn btn-outline-primary btn-lg" role="button">
                     <i class="bi bi-arrow-return-left"></i>
                     Pagina de inicio

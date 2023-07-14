@@ -1,5 +1,6 @@
 const EXPRESS = require("express");
 const APP = EXPRESS();
+const CORS = require("./middlewares/cors.js");
 const PATH = require("path");
 const REGISTROS = require("./routes/registros-rt");
 
@@ -9,6 +10,7 @@ APP.set("view engine", "ejs");
 APP.set("views", PATH.join(__dirname, "views"));
 
 // MIDDLEWARE
+APP.use(CORS);
 APP.use("/jquery", EXPRESS.static(PATH.join(__dirname, "node_modules/jquery/dist")));
 APP.use("/bs/css", EXPRESS.static(PATH.join(__dirname, "node_modules/bootstrap/dist/css")));
 APP.use("/bs/js", EXPRESS.static(PATH.join(__dirname, "node_modules/bootstrap/dist/js")));
@@ -26,5 +28,5 @@ APP.get("/server", (req, res) => {
 
 // SERVER
 APP.listen(APP.get("port"), () => {
-    console.log("Server at: http://localhost:" + APP.get("port"));
+    console.log("Server at: http://arnica.dnsalias.com:" + APP.get("port"));
 })

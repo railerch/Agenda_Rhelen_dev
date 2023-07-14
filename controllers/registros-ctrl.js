@@ -2,19 +2,19 @@ const { conn, connTest } = require("../sequelize");
 const PATH = require("path");
 const URL = require("url");
 const FS = require("fs");
+data = JSON.parse(FS.readFileSync("./config/config.json", "utf8"));
 
 // VISTAS
 const landingPage = (req, res) => {
     res.status(200);
     res.header("content-type", "text/html");
-    res.render("index");
+    res.render("index", { server: data[0].server });
 }
 
 const vistaFormulario = (req, res) => {
-    data = JSON.parse(FS.readFileSync("./config/config.json", "utf8"));
     res.status(200);
     res.header("content-type", "text/html");
-    res.render("data-entry", { estaciones: data[0].estaciones, horarios: data[0].horarios });
+    res.render("data-entry", { estaciones: data[0].estaciones, horarios: data[0].horarios, server: data[0].server });
 }
 
 const vistaTabla = (req, res) => {

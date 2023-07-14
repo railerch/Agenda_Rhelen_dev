@@ -1,5 +1,5 @@
 import * as fn from "./main-fn.js";
-let serverAPI = "http://10.80.35.24:8000";
+let server = "http://arnica.dnsalias.com:8000";
 
 window.onload = () => {
     // FORMULARIO DE REGISTRO
@@ -53,7 +53,7 @@ window.onload = () => {
                         let tmp = JSON.parse(sessionStorage.getItem("datosRegistro"));
                         let datos = new URLSearchParams(tmp).toString();
 
-                        fetch(`${serverAPI}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
+                        fetch(`${server}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
                             .then(res => res.json())
                             .then(res => {
                                 next = 4;
@@ -100,7 +100,7 @@ window.onload = () => {
             // Cambiar imagen de la estacion
             let estacionImg = document.getElementById("estacion-img");
             let imagen = `${this.value.replaceAll(" ", "_")}.jpg`;
-            estacionImg.setAttribute("src", `img/${imagen}`);
+            estacionImg.setAttribute("src", `${server}/img/${imagen}`);
             estacionImg.setAttribute("alt", this.value);
         })
 
