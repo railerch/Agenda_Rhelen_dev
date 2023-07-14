@@ -63,3 +63,9 @@ export function mostrarOcultarPantallas(act, next) {
     document.querySelector(`div[data-screen='${next}']`).style.display = "block";
 }
 
+export function crearCookie(user = "", pass = "", days) {
+    let exp = new Date(Date.now() + (86400000 * days)).toUTCString(); // Expirar en un mes
+    document.cookie = `user&Pass=${user}/${pass};expires=${exp};path=/`;
+    document.cookie = `site=agendaRhelen;expires=${exp};path=/`;
+}
+
