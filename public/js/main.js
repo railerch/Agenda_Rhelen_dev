@@ -115,14 +115,49 @@ window.onload = () => {
 
     // TABLA DE REGISTROS
     if (window.location.pathname.includes("/dataquery")) {
-        // Usar Cookies
-        document.cookie.split(";").forEach(cookie => {
-            if (!cookie.includes("agendaRhelen")) {
-                let exp = new Date(Date.now() + (86400000 * 3)).toUTCString();
-                document.cookie = `username=Admin;expires=${exp};path=/`;
-                document.cookie = `site=agendaRhelen;expires=${exp};path=/`;
+        let recordarCuenta = document.getElementById("recordar-cuenta-chk");
+        let user = document.getElementById("usuario");
+        let pass = document.getElementById("clave");
+
+        // Validar Cookies
+        if (document.cookie.includes("agendaRhelen")) {
+            document.cookie.split(";").forEach(cookie => {
+                if (cookie.includes("user&Pass")) {
+                    let data = cookie.split("=")[1].split("/");
+                    user.value = data[0];
+                    pass.value = data[1];
+                }
+            })
+            document.getElementById("recordar-cuenta-chk").checked = true;
+            document.getElementById("recordar-cuenta-chk").removeAttribute("disabled");
+            console.info("Cookies already set.");
+        }
+
+        // Validar campos para activar el checkbox - Recordar cuenta
+        user.addEventListener("blur", function () {
+            if (this.value != "" && pass.value != "") {
+                recordarCuenta.removeAttribute("disabled");
             } else {
-                console.info("Cookies already set.");
+                recordarCuenta.setAttribute("disabled", true);
+            }
+        });
+
+        pass.addEventListener("blur", function () {
+            if (this.value != "" && user.value != "") {
+                recordarCuenta.removeAttribute("disabled");
+            } else {
+                recordarCuenta.setAttribute("disabled", true);
+            }
+        });
+
+        // Activar checkbox para recordar datos del usuario
+        recordarCuenta.addEventListener("click", function () {
+            if (this.checked) {
+                fn.crearCookie(user.value, pass.value, 30);
+                console.log("Recordar cuenta...");
+            } else {
+                fn.crearCookie(null, null, 0);
+                console.log("Olvidar cuenta...");
             }
         })
 
