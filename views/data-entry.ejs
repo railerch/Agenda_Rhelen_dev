@@ -22,8 +22,11 @@
 
 <body>
     <div class="container my-3">
+        <header id="banner">
+            <img class="img-fluid" src="<%= server %>img/bannerprincipal.jpg" alt="Banner principal">
+        </header>
         <!-- BARRA DE PROGRESO -->
-        <div id="progreso-registro" class="col-12 d-flex justify-content-center">
+        <div id="progreso-registro" class="col-12 d-flex justify-content-center mt-1">
             <div class="col-3 paso" data-paso="1" style="visibility: hidden;"><span>
                     <i class="bi bi-calendar me-2"></i> 1. Reserva</span>
             </div>
@@ -47,7 +50,7 @@
 
             <!-- PANTALLA 01 -->
             <div class="pantalla" data-screen="1" style="display:none">
-                <h3><i class="bi bi-calendar"></i> Indique fecha, hora y estación</h3>
+                <h3><i class="bi bi-calendar"></i> Indique estación, fecha y hora de su cita</h3>
                 <span>Seleccione a continuación la hora y fecha que mas se ajusten a su conveniencia y haga clic
                     en
                     siguiente.</span>
@@ -60,7 +63,7 @@
                         <div class="input-group">
                             <div class="input-group-text col-4 col-md-2">Estaciones</div>
                             <select name="estacion" class="form-select form-select">
-                                <option value="sinEstacion" selected>Seleccione estación</option>
+                                <option value="sinEstacion" selected>Seleccione la estación</option>
                                 <% estaciones.forEach( st=> { %>
                                     <option value='<%= st %>'>
                                         <%= st %>
@@ -71,17 +74,17 @@
 
                         <!-- FECHA -->
                         <div class="input-group mt-3">
-                            <div class="input-group-text col-4 col-md-2">Fechas </div>
-                            <input name="fecha-cita" class="form-control" type="date">
+                            <div class="input-group-text col-4 col-md-2">Fecha</div>
+                            <input name="fecha-cita" class="form-control" type="date" disabled>
                         </div>
 
                         <!-- HORA -->
                         <div class="input-group mt-3">
                             <div class="input-group-text col-4 col-md-2">Horarios</div>
-                            <select name="hora-cita" class="form-select form-select">
-                                <option value="" selected>Seleccione la hora</option>
+                            <select name="hora-cita" class="form-select form-select" disabled>
+                                <option value="" selected>Hora de su cita</option>
                                 <% horarios.forEach( hr=> { %>
-                                    <option value=<%=hr %>>
+                                    <option value="<%=hr %>" style="color:green">
                                         <%= hr %>
                                     </option>
                                     <% }) %>
@@ -92,8 +95,8 @@
                     <!-- IMAGEN DE LA ESTACION -->
                     <div id="estacion-img-div" class="col-md-6 p-1">
                         <div class="d-flex justify-content-center">
-                            <img id="estacion-img" class="img-fluid rounded estacion-img"
-                                src="<%= server %>img/sinEstacion.jpg" alt="Imagen inicial">
+                            <img class="img-fluid rounded estacion-img" src="<%= server %>img/sinEstacion.jpg"
+                                alt="Imagen inicial">
                         </div>
                     </div>
                 </div>
@@ -145,13 +148,30 @@
 
                         <div class="form-grou d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
-                                <div class="input-group-text col-3 col-md-2">Disciplina</div>
-                                <input class="form-control" type="text" name="disciplina">
+                                <div class="input-group-text col-3 col-md-2">Equipo</div>
+                                <input class="form-control" type="text" name="equipo">
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Categoria</div>
-                                <input class="form-control" type="text" name="categoria">
+                                <select class="form-select form-select" name="categoria">
+                                    <option value="Equipos novatos" selected>Seleccionar</option>
+                                    <option value="Equipos novatos">Equipos novatos</option>
+                                    <option value="Equipos escalados">Equipos escalados</option>
+                                    <option value="Equipos avanzados">Equipos avanzados</option>
+                                    <option value="Equipos supermaster">Equipos supermaster</option>
+                                    <option value="Trios mixtos">Trios mixtos</option>
+                                    <option value="Duplas HH escalados">Duplas HH escalados</option>
+                                    <option value="Duplas HH avanzados">Duplas HH avanzados</option>
+                                    <option value="Duplas HM supermaster">Duplas HM supermaster</option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="form-grou d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Instagram</div>
+                                <input class="form-control" type="text" name="instagram">
+                            </div>
+                            <div class="input-group"></div>
                         </div>
                     </form>
                 </div>
@@ -164,15 +184,27 @@
                     <b>Finalizar</b>, en caso contrario pulse <b>Atras</b> y realice las correcciones necesarias para
                     completar su registro.</span>
 
-                <div id="datos-para-confirmar" class="mt-3">
-                    <!-- Datos generados con JS -->
+                <div class="d-flex justify-content-center mt-3">
+                    <div id="datos-para-confirmar" class="col-md-6 mt-3 mt-md-0 p-1">
+                        <!-- Datos generados con JS -->
+                    </div>
+
+                    <!-- IMAGEN DE LA ESTACION -->
+                    <div id="confirm-estacion-img-div" class="col-md-6 p-1">
+                        <div class="d-flex justify-content-center">
+                            <img class="img-fluid rounded estacion-img" src="<%= server %>img/sinEstacion.jpg"
+                                alt="Imagen inicial">
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- PANTALLA 04 -->
             <div class="pantalla" data-screen="4" style="display:none">
                 <h3><i class="bi bi-hand-thumbs-up"></i> Registro finalizado exitosamente</h3>
-                <span>Gracias por agendar con nosotros, le hemos enviado un correo con los detalles del registro.</span>
+                <span>Estaremos gustosos de vivir con usted la Rhelen Árnica Xperiences
+                    ¡Lo esperamos!
+                </span>
                 <img class="img-fluid my-3" src="<%= server %>img/bannerFinal.jpg" alt="Banner principal">
             </div>
 
@@ -186,6 +218,19 @@
                                 <b><i class="bi bi-exclamation-triangle"></i> Ud. debe proporcionar todos los datos
                                     solicitados para poder continuar.</b>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL PRELOADER -->
+            <div class="modal fade" id="preloader-modal" tabindex="-1" data-bs-backdrop="static"
+                data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document"
+                    style="max-width:fit-content;">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <img class='align-self-center' src='<%= server %>img/preloader.gif' alt='preloader img'>
                         </div>
                     </div>
                 </div>
