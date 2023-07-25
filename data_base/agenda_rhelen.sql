@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-07-2023 a las 16:59:56
+-- Tiempo de generación: 19-07-2023 a las 21:53:32
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.6
 
@@ -36,11 +36,13 @@ CREATE TABLE `agenda` (
   `genero` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
   `telefono` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
   `correo` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
-  `disciplina` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
+  `instagram` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
+  `equipo` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
   `categoria` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
   `estacion` varchar(30) COLLATE utf8_spanish_ci NOT NULL,
   `fecha_cita` date NOT NULL,
-  `hora_cita` time NOT NULL
+  `hora_cita` time NOT NULL,
+  `concluida` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --

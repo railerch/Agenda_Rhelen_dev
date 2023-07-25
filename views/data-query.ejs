@@ -35,7 +35,7 @@
 </head>
 
 <body>
-    <div id="container-inicio" class="container">
+    <div id="container-dataquery">
         <h3 class="text-muted"><i class="bi bi-database"></i> Repositorio de datos Arnica</h3>
         <hr>
         <div class="table-responsive">
@@ -50,21 +50,34 @@
                         <th>Genero</th>
                         <th>Teléfono</th>
                         <th>Correo</th>
+                        <th>Instagram</th>
                         <th>Disciplina</th>
                         <th>Categoria</th>
                         <th>Estación</th>
                         <th>Fecha cita</th>
                         <th>Hora cita</th>
+                        <th>Concluida</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% for(let reg of registros) { %>
                         <tr>
-                            <% for(let col in reg) { %>
-                                <td>
-                                    <%= reg[col] %>
+                            <% for(let col in reg) { if(col=="concluida" ){ if(reg[col]==0){ %>
+                                <td class="text-center">
+                                    <i class="btn btn-outline-success bi bi-hand-thumbs-up text-success concluir-cita-btn"
+                                        data-reng="<%= reg['id'] %>" data-cedula="<%= reg['cedula'] %>"
+                                        alt="Marcar cita como concluida"></i>
                                 </td>
-                                <% } %>
+                                <% }else{ %>
+                                    <td class="text-center">
+                                        <i class="bi bi-check-lg text-success" alt="Cita concluida"
+                                            style="font-size:2em"></i>
+                                    </td>
+                                    <%} }else { %>
+                                        <td>
+                                            <%= reg[col] %>
+                                        </td>
+                                        <% } }%>
                         </tr>
                         <% } %>
                 </tbody>
@@ -93,12 +106,40 @@
                 </div>
                 <div class="d-flex flex-column modal-footer">
                     <div>
-                        <input id="recordar-cuenta-chk" class="form-check-input" type="checkbox" name="recordar-cuenta" value="" disabled>
+                        <input id="recordar-cuenta-chk" class="form-check-input" type="checkbox" name="recordar-cuenta"
+                            value="" disabled>
                         <label for="recordar-cuenta-chk"> Recordar cuenta</label>
                     </div>
 
                     <button id="admin-login-btn" type="button" class="btn btn-success"><i class="bi bi-door-open"></i>
                         Entrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AVISOS -->
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="alert alert-danger m-0" role="alert">
+                        <b><i class="bi bi-exclamation-triangle"></i> Error en operación, intente nuevamente.</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRELOADER -->
+    <div class="modal fade" id="preloader-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+        role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document"
+            style="max-width:fit-content;">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <img class='align-self-center' src='<%= server %>img/preloader.gif' alt='preloader img'>
                 </div>
             </div>
         </div>

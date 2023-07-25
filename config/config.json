@@ -1,16 +1,16 @@
 [
     {
         "estaciones": [
-            "Henri Pittier",
-            "Sierra Nevada",
-            "Wuaraira Repano",
-            "Yurubi",
             "Canaima",
+            "Cienagas del catatumbo",
+            "Cueva del Guacharo",
+            "Henri Pittier",
             "Los Roques",
             "Mochima",
-            "Cienagas del catatumbo",
             "Santos Luzardo",
-            "Espera"
+            "Sierra Nevada",
+            "Yurubi",
+            "Waraira Repano"
         ],
         "horarios": [
             "7:30",

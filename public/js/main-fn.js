@@ -1,12 +1,10 @@
 // MODULO DE FUNCIONES
 
 export function preloader(load = true) {
-    let preloaderDiv = document.getElementById("preloader-div");
-
     if (load) {
-        preloaderDiv.innerHTML = "<div class='d-flex justify-content-center align-itens-center' style='height: 200px;'><img class='align-self-center' src='img/preloader.gif' alt='preloader img'></div>";
+        $("#preloader-modal").modal("show");
     } else {
-        preloaderDiv.innerHTML = "";
+        $("#preloader-modal").modal("hide");
     }
 }
 

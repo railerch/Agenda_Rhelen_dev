@@ -5,15 +5,13 @@ window.onload = () => {
     // FORMULARIO DE REGISTRO
     if (window.location.pathname.includes("/dataentry")) {
         // AVANCE Y RETORNO ENTRE PANTALLAS
-        fn.preloader();
+        sessionStorage.removeItem("datosRegistro");
         sessionStorage.setItem("pantallaActual", 1);
         document.querySelector("div[data-paso='1']").style.visibility = "visible";
         document.querySelector("div[data-screen='1']").style.display = "block";
-        fn.preloader(false);
 
         document.querySelectorAll(".control-btn").forEach(btn => {
             btn.addEventListener("click", function () {
-                fn.preloader();
                 let accion = this.getAttribute("data-direction");
                 let pantAct = parseInt(sessionStorage.getItem("pantallaActual"));
                 let next;
@@ -25,8 +23,8 @@ window.onload = () => {
                         if (next == 1) {
                             btn.style.display = "none";
                         } else if (next == 2) {
-                            document.getElementById("finalizar-btn").style.display = "none"
-                            document.getElementById("adelante-btn").style.display = "inline"
+                            document.getElementById("finalizar-btn").style.display = "none";
+                            document.getElementById("adelante-btn").style.display = "inline";
                         }
 
                         fn.mostrarOcultarPantallas(pantAct, next);
@@ -52,19 +50,24 @@ window.onload = () => {
                         // Registrar datos de cita en BD
                         let tmp = JSON.parse(sessionStorage.getItem("datosRegistro"));
                         let datos = new URLSearchParams(tmp).toString();
-
+                        fn.preloader();
                         fetch(`${server}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
                             .then(res => res.json())
                             .then(res => {
-                                next = 4;
-                                fn.mostrarOcultarPantallas(pantAct, next);
-                                sessionStorage.setItem("pantallaActual", next);
-                                sessionStorage.removeItem("datosRegistro");
+                                /* La ventana modal con el preloader.gif tarda 300ms en activarse, si se trata de desactivar
+                                antes de este tiempo quedara activa y bloqueara la interaccion con el formulario */
+                                setTimeout(() => {
+                                    next = 4;
+                                    fn.preloader(false);
+                                    fn.mostrarOcultarPantallas(pantAct, next);
+                                    sessionStorage.setItem("pantallaActual", next);
+                                    sessionStorage.removeItem("datosRegistro");
 
-                                btn.style.display = "none";
-                                document.getElementById("atras-btn").style.display = "none";
-                                document.getElementById("adelante-btn").style.display = "none";
-                                document.getElementById("pagina-principal-btn").style.display = "inline";
+                                    btn.style.display = "none";
+                                    document.getElementById("atras-btn").style.display = "none";
+                                    document.getElementById("adelante-btn").style.display = "none";
+                                    document.getElementById("pagina-principal-btn").style.display = "inline";
+                                }, 500)
                             }).catch(err => {
                                 console.log("HA OCURRIDO UN ERROR: " + err);
                             })
@@ -97,19 +100,69 @@ window.onload = () => {
             dataSet.delete("fecha_cita");
             dataSet.delete("hora_cita");
 
-            // Cambiar imagen de la estacion
-            let estacionImg = document.getElementById("estacion-img");
-            let imagen = `${this.value.replaceAll(" ", "_")}.jpg`;
-            estacionImg.setAttribute("src", `${server}/img/${imagen}`);
-            estacionImg.setAttribute("alt", this.value);
+            if (this.value != "sinEstacion") {
+                document.querySelector("input[name=fecha-cita]").removeAttribute("disabled");
+
+                // Cambiar imagen de la estacion
+                let imagen = `${this.value.replaceAll(" ", "_")}.jpg`;
+                let alt = this.value;
+                document.querySelectorAll(".estacion-img").forEach(el => {
+                    el.setAttribute("src", `${server}/img/${imagen}`);
+                    el.setAttribute("alt", alt);
+                })
+            } else {
+                document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
+                document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
+                document.querySelectorAll(".estacion-img").forEach(el => {
+                    el.setAttribute("src", `${server}/img/sinEstacion.jpg`);
+                    el.setAttribute("alt", "Debe seleccionar una estacion.");
+                })
+            }
+
         })
 
         // CONSULTAR HORARIOS DISPONIBLES AL CAMBIAR LA FECHA
         document.querySelector("input[name=fecha-cita]").addEventListener("change", function () {
-            document.querySelector("select[name=hora-cita]").value = "";
+            let estacion = document.querySelector("select[name=estacion]");
+            let horaCita = document.querySelector("select[name=hora-cita]");
+            let horaCitaOpt = document.querySelectorAll("select[name=hora-cita] option");
+
+
+            horaCita.value = "";
+            horaCita.removeAttribute("disabled");
+            for (let opt of horaCitaOpt) {
+                if (opt.value != "") {
+                    opt.removeAttribute("disabled");
+                    opt.style.color = "green";
+                }
+            };
 
             // Eliminar hora del dataSet generado
             dataSet.delete("hora_cita");
+
+            // Consultar horarios disponibles segun la fecha
+            fetch(`${server}/horarios/${this.value}/${estacion.value}`)
+                .then(res => res.json())
+                .then(res => {
+                    console.log(res);
+                    // Obtener horarios no disponibles
+                    let hrNoDisp = [];
+                    res.forEach(hr => {
+                        let tmp = hr.hora_no_disponible.split(":");
+                        hrNoDisp.push(`${tmp[0]}:${tmp[1]}`);
+                    })
+
+                    // Deshabilitar horarios no disponibles en selector de hora_cita
+                    for (let opt of horaCitaOpt) {
+                        hrNoDisp.forEach(hr => {
+                            if (hr.includes(opt.value) && opt.value != "") {
+                                opt.setAttribute("disabled", true);
+                                opt.style.color = "red";
+                            }
+                        })
+                    };
+
+                }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
         })
     }
 
@@ -205,6 +258,31 @@ window.onload = () => {
                     aviso.style.display = "none";
                 }, 2000)
             }
+        })
+
+        // Marcar cita como finalizada por el admin
+        document.querySelectorAll(".concluir-cita-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                fn.preloader();
+                let btnTmp = this;
+                let rengId = this.getAttribute("data-reng");
+                let cedula = this.getAttribute("data-cedula");
+                fetch(`${server}/concluir-cita/${rengId}/${cedula}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        console.log(res);
+                        if (res.stmt) {
+                            setTimeout(() => {
+                                fn.preloader(false);
+                                btnTmp.parentElement.innerHTML = '<i class="bi bi-check-lg text-success" alt="Cita concluida" style="font-size:2em"></i>';
+                            }, 500)
+                        }
+                    }).catch(err => {
+                        fn.preloader(false);
+                        $("#error-modal").modal("show");
+                        console.log("HA OCURRIDO UN ERROR: " + err)
+                    })
+            })
         })
     }
 }
