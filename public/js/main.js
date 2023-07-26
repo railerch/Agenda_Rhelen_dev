@@ -92,16 +92,20 @@ window.onload = () => {
 
         // CAMBIAR IMAGEN / CONSULTAR FECHAS Y HORARIOS DISPONIBLES AL CAMBIAR DE ESTACION
         document.querySelector("select[name=estacion]").addEventListener("change", function () {
+            let fechaCita = document.querySelector("input[name=fecha-cita]");
+            let horaCita = document.querySelector("select[name=hora-cita]");
+
             // Restaurar campos
-            document.querySelector("input[name=fecha-cita]").value = "";
-            document.querySelector("select[name=hora-cita]").value = "";
+            fechaCita.value = "";
+            horaCita.value = "";
+            horaCita.setAttribute("disabled", true);
 
             // Eliminar fecha y hora del dataSet generado
             dataSet.delete("fecha_cita");
             dataSet.delete("hora_cita");
 
             if (this.value != "sinEstacion") {
-                document.querySelector("input[name=fecha-cita]").removeAttribute("disabled");
+                fechaCita.removeAttribute("disabled");
 
                 // Cambiar imagen de la estacion
                 let imagen = `${this.value.replaceAll(" ", "_")}.jpg`;
@@ -111,8 +115,8 @@ window.onload = () => {
                     el.setAttribute("alt", alt);
                 })
             } else {
-                document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
-                document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
+                fechaCita.setAttribute("disabled", true);
+                horaCita.setAttribute("disabled", true);
                 document.querySelectorAll(".estacion-img").forEach(el => {
                     el.setAttribute("src", `${server}/img/sinEstacion.jpg`);
                     el.setAttribute("alt", "Debe seleccionar una estacion.");
@@ -127,42 +131,63 @@ window.onload = () => {
             let horaCita = document.querySelector("select[name=hora-cita]");
             let horaCitaOpt = document.querySelectorAll("select[name=hora-cita] option");
 
+            // Limitar fechas de atencion
+            let hoy = Date.now();
+            let fecSelec = Date.parse(this.value) + 86400000;
+            let fecLimite = 1690761600000;
 
-            horaCita.value = "";
-            horaCita.removeAttribute("disabled");
-            for (let opt of horaCitaOpt) {
-                if (opt.value != "") {
-                    opt.removeAttribute("disabled");
-                    opt.style.color = "green";
-                }
-            };
+            if (fecSelec > fecLimite || fecSelec < hoy) {
+                $("#limite-fecha-modal").modal("show");
 
-            // Eliminar hora del dataSet generado
-            dataSet.delete("hora_cita");
+                console.table({
+                    Hoy: new Date(hoy).toLocaleDateString(),
+                    fecSelec: new Date(fecSelec).toLocaleDateString(),
+                    fecLimite: new Date(fecLimite).toLocaleDateString(),
+                })
 
-            // Consultar horarios disponibles segun la fecha
-            fetch(`${server}/horarios/${this.value}/${estacion.value}`)
-                .then(res => res.json())
-                .then(res => {
-                    console.log(res);
-                    // Obtener horarios no disponibles
-                    let hrNoDisp = [];
-                    res.forEach(hr => {
-                        let tmp = hr.hora_no_disponible.split(":");
-                        hrNoDisp.push(`${tmp[0]}:${tmp[1]}`);
-                    })
+                // Eliminar hora y fecha del dataSet generado
+                dataSet.delete("fecha_cita");
+                this.value = "";
+                dataSet.delete("hora_cita");
+                horaCita.value = "";
+                horaCita.setAttribute("disabled", true);
+            } else {
+                horaCita.value = "";
+                horaCita.removeAttribute("disabled");
 
-                    // Deshabilitar horarios no disponibles en selector de hora_cita
-                    for (let opt of horaCitaOpt) {
-                        hrNoDisp.forEach(hr => {
-                            if (hr.includes(opt.value) && opt.value != "") {
-                                opt.setAttribute("disabled", true);
-                                opt.style.color = "red";
-                            }
+                for (let opt of horaCitaOpt) {
+                    if (opt.value != "") {
+                        opt.removeAttribute("disabled");
+                        opt.style.color = "green";
+                    }
+                };
+
+                // Eliminar hora del dataSet generado
+                dataSet.delete("hora_cita");
+
+                // Consultar horarios disponibles segun la fecha
+                fetch(`${server}/horarios/${this.value}/${estacion.value}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        // Obtener horarios no disponibles
+                        let hrNoDisp = [];
+                        res.forEach(hr => {
+                            let tmp = hr.hora_no_disponible.split(":");
+                            hrNoDisp.push(`${tmp[0]}:${tmp[1]}`);
                         })
-                    };
 
-                }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+                        // Deshabilitar horarios no disponibles en selector de hora_cita
+                        for (let opt of horaCitaOpt) {
+                            hrNoDisp.forEach(hr => {
+                                if (hr.includes(opt.value) && opt.value != "") {
+                                    opt.setAttribute("disabled", true);
+                                    opt.style.color = "red";
+                                }
+                            })
+                        };
+
+                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+            }
         })
     }
 
