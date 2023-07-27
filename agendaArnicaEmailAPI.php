@@ -62,7 +62,7 @@ if (@$_GET['correoFinal']) {
     $destinatario   = @$_POST['correo'];
 
     $mensaje = "$nombre, ha sido un inmenso placer para nosotros haber vivido junto a usted la <b>Rhelen Árnica 
-    Xperience</b> esperamos compartas tu experiencia en etiquetandonos con @rhelenarnica en tus redes sociales.";
+    Xperiences</b> esperamos compartas tu experiencia etiquetandonos con @rhelenarnica en tus redes sociales. <br>Saludos.";
 
     $cabeceras  = 'MIME-Version: 1.0' . "\r\n";
     $cabeceras .= 'Content-type: text/html; charset=utf-8' . "\r\n";
