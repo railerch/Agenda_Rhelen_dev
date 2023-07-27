@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="<%= server %>bs-i/css/bootstrap-icons.css">
 
     <!-- CUSTOM -->
+    <link rel="shortcut icon" href="<%= server %>img/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="<%= server %>css/style.css">
     <script type="module" src="<%= server %>js/main.js" defer></script>
 
@@ -202,9 +203,7 @@
             <!-- PANTALLA 04 -->
             <div class="pantalla" data-screen="4" style="display:none">
                 <h3><i class="bi bi-hand-thumbs-up"></i> Registro finalizado exitosamente</h3>
-                <span>Le hemos enviado un correo a la dirección indicada con los datos de su cita, staremos gustosos de
-                    vivir con usted la Rhelen Árnica Xperiences
-                    ¡Lo esperamos!
+                <span>Le hemos enviado un correo a la dirección indicada con los datos de su cita. ¡Lo esperamos!
                 </span>
                 <img class="img-fluid my-3" src="<%= server %>img/bannerFinal.jpg" alt="Banner principal">
             </div>
@@ -260,14 +259,14 @@
         <div id="avance-btn"
             class="d-flex flex-wrap-reverse justify-content-center justify-content-md-end d-grid gap-2">
 
-            <button id="atras-btn" class="btn btn-outline-secondary btn-lg control-btn" data-direction="atras"
-                role="button" style="display:none">
+            <button id="atras-btn" class="btn btn-outline-warning btn-lg control-btn" data-direction="atras"
+                role="button" style="display:none;color:#5c108c">
                 <i class="bi bi-arrow-left"></i>
                 Atras
             </button>
 
-            <button id="adelante-btn" class="btn btn-outline-primary btn-lg control-btn" data-direction="adelante"
-                role="button">
+            <button id="adelante-btn" class="btn btn-outline-warning btn-lg control-btn" data-direction="adelante"
+                role="button" style="color:#5c108c">
                 <i class="bi bi-arrow-right"></i>
                 Siguiente
             </button>
@@ -280,7 +279,7 @@
 
             <!-- VOLVER A LA PAGINA DE INICIO -->
             <a id="pagina-principal-btn" href="<%= server %>" style="display:none;text-decoration: none;">
-                <button class="btn btn-outline-primary btn-lg" role="button">
+                <button class="btn btn-outline-warning btn-lg" role="button" style="color:#5c108c">
                     <i class="bi bi-arrow-return-left"></i>
                     Pagina de inicio
                 </button>

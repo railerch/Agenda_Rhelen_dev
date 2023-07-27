@@ -28,6 +28,7 @@
     <script type="text/javascript" src="js/buttons.colVis.js" defer></script>
 
     <!-- CUSTOM -->
+    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/main.js" defer></script>
 
@@ -35,24 +36,20 @@
 </head>
 
 <body>
+    <!-- TABLA DE REGISTROS -->
     <div id="container-dataquery">
         <h3 class="text-muted"><i class="bi bi-database"></i> Repositorio de datos Arnica</h3>
         <hr>
         <div class="table-responsive">
-            <table id="registros-agenda-tbl" class="table table-hover">
+            <table id="registros-agenda-tbl" class="table table-hover" style="width:100%">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Fecha Registro</th>
                         <th>Nombre</th>
                         <th>Cedula</th>
-                        <th>Edad</th>
-                        <th>Genero</th>
                         <th>Teléfono</th>
                         <th>Correo</th>
                         <th>Instagram</th>
-                        <th>Disciplina</th>
-                        <th>Categoria</th>
                         <th>Estación</th>
                         <th>Fecha cita</th>
                         <th>Hora cita</th>
@@ -73,11 +70,43 @@
                                         <i class="bi bi-check-lg text-success" alt="Cita concluida"
                                             style="font-size:2em"></i>
                                     </td>
-                                    <%} }else { %>
+                                    <%} }else { let dato; switch(col){ case "fecha_reg" : %>
                                         <td>
                                             <%= reg[col] %>
                                         </td>
-                                        <% } }%>
+                                        <%; break; case "nombre" : %>
+                                            <td>
+                                                <%= reg[col] %>
+                                            </td>
+                                            <%; break; case "cedula" : %>
+                                                <td>
+                                                    <%= reg[col] %>
+                                                </td>
+                                                <%; break; case "telefono" : %>
+                                                    <td>
+                                                        <%= reg[col] %>
+                                                    </td>
+                                                    <%; break; case "correo" : %>
+                                                        <td>
+                                                            <%= reg[col] %>
+                                                        </td>
+                                                        <%; break; case "instagram" : %>
+                                                            <td>
+                                                                <%= reg[col] %>
+                                                            </td>
+                                                            <%; break; case "estacion" : %>
+                                                                <td>
+                                                                    <%= reg[col] %>
+                                                                </td>
+                                                                <%; break; case "fecha_cita" : %>
+                                                                    <td>
+                                                                        <%= reg[col] %>
+                                                                    </td>
+                                                                    <%; break; case "hora_cita" : %>
+                                                                        <td>
+                                                                            <%= reg[col] %>
+                                                                        </td>
+                                                                        <%; break; break; } } }%>
                         </tr>
                         <% } %>
                 </tbody>
@@ -85,6 +114,7 @@
         </div>
     </div>
 
+    <!-- MODAL LOGIN -->
     <div class="modal fade" id="login-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
         role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
