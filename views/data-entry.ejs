@@ -65,9 +65,9 @@
                             <div class="input-group-text col-4 col-md-2">Estaciones</div>
                             <select name="estacion" class="form-select form-select">
                                 <option value="sinEstacion" selected>Seleccione la estación</option>
-                                <% estaciones.forEach( st=> { %>
-                                    <option value='<%= st %>'>
-                                        <%= st %>
+                                <% estaciones.forEach( est=> { %>
+                                    <option value='<%= est.descripcion %>'>
+                                        <%= est.descripcion %>
                                     </option>
                                     <% }) %>
                             </select>
@@ -85,8 +85,8 @@
                             <select name="hora-cita" class="form-select form-select" disabled>
                                 <option value="" selected>Hora de su cita</option>
                                 <% horarios.forEach( hr=> { %>
-                                    <option value="<%=hr %>" style="color:green">
-                                        <%= hr %>
+                                    <option value="<%=hr.hora %>" style="color:green">
+                                        <%= hr.hora %>
                                     </option>
                                     <% }) %>
                             </select>
@@ -133,6 +133,44 @@
                                     <option value="Masculino">Masculino</option>
                                     <option value="Femenino">Femenino</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Estado</div>
+                                <select class="form-select form-select" name="estado">
+                                    <option value="" selected>Seleccione</option>
+                                    <option value="Amazonas">Amazonas</option>
+                                    <option value="Anzoátegui">Anzoátegui</option>
+                                    <option value="Apure">Apure</option>
+                                    <option value="Aragua">Aragua</option>
+                                    <option value="Barinas">Barinas</option>
+                                    <option value="Bolívar">Bolívar</option>
+                                    <option value="Carabobo">Carabobo</option>
+                                    <option value="Cojedes">Cojedes</option>
+                                    <option value="Delta Amacuro">Delta Amacuro</option>
+                                    <option value="Dependencias Federales">Dependencias Federales</option>
+                                    <option value="Distrito Capital">Distrito Capital</option>
+                                    <option value="Falcón">Falcón</option>
+                                    <option value="Guárico">Guárico</option>
+                                    <option value="Lara">Lara</option>
+                                    <option value="Mérida">Mérida</option>
+                                    <option value="Miranda">Miranda</option>
+                                    <option value="Monagas">Monagas</option>
+                                    <option value="Nueva Esparta">Nueva Esparta</option>
+                                    <option value="Portuguesa">Portuguesa</option>
+                                    <option value="Sucre">Sucre</option>
+                                    <option value="Táchira">Táchira</option>
+                                    <option value="Trujillo">Trujillo</option>
+                                    <option value="Vargas">Vargas</option>
+                                    <option value="Yaracuy">Yaracuy</option>
+                                    <option value="Zulia">Zulia</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <div class="input-group-text col-3 col-md-2">Ciudad</div>
+                                <input class="form-control" type="text" name="ciudad">
                             </div>
                         </div>
 
@@ -231,8 +269,8 @@
                         <div class="modal-body">
                             <div class="alert alert-warning m-0" role="alert">
                                 <b><i class="bi bi-exclamation-triangle" style="color:red"></i> Días de atención:<br>
-                                    del
-                                    28/07/2023 al 30/07/2023</b>
+                                    desde
+                                    <span id="fecha-ini"></span> hasta <span id="fecha-fin"></span></b>
                             </div>
                         </div>
                     </div>

@@ -36,20 +36,202 @@
 </head>
 
 <body>
-    <!-- TABLA DE REGISTROS -->
+    <!-- CMS -->
     <div id="container-dataquery">
-        <h3 class="text-muted"><i class="bi bi-database"></i> Repositorio de datos Arnica</h3>
+        <div class="alert alert-secondary text-end p-2" role="alert">
+            <button id="cerrar-sesion-btn" class="btn btn-outline-primary"><i class="bi bi-box-arrow-right"></i> Cerrar
+                sesion</button>
+        </div>
+
+        <!-- EVENTOS & ESTACIONES -->
+        <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-4 mb-5 mb-lg-4">
+            <!-- EVENTOS -->
+            <div class="col-12 col-md-6 border rounded-3 shadow p-3" style="background-color: snow;">
+                <!-- Tabla -->
+                <div class="mb-3">
+                    <h2 class="text-muted"><i class="bi bi-trophy"></i> Eventos</h2>
+                    <hr>
+                    <div class="mb-2">
+                        <table id="eventos-tbl" class="table table-hover evt-est">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha Ini.</th>
+                                    <th>Fecha Fin.</th>
+                                    <th class="text-center">Estatus</th>
+                                    <th class="text-center">Acc</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% eventos.forEach(evt=>{ %>
+                                    <tr id="reg-<%= evt.id%>">
+                                        <% for(let col in evt) { %>
+                                            <td>
+                                                <%= evt[col] %>
+                                            </td>
+                                            <%} %>
+                                                <td class="text-center">
+                                                    <button data-id="<%= evt['id']%>" data-tipo="eventos"
+                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                        title="Eliminar" data-bs-toggle="modal"
+                                                        data-bs-target="#confirmar-eliminacion-modal"><i
+                                                            class="bi bi-trash"></i></button>
+                                                </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Agregar -->
+                <div class="mt-4">
+                    <h5><i class="bi bi-plus"></i> Nuevo evento</h5>
+                    <form id="nuevo-evento-frm">
+                        <input type="text" class="form-control" name="evtdesc" placeholder="Nombre del evento">
+                        <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 mt-2">
+                            <div class="input-group">
+                                <label class="input-group-text" for="evtfecini">Desde</label>
+                                <input type="date" class="form-control" name="evtfecini">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-group-text" for="evtfecfin">Hasta</label>
+                                <input type="date" class="form-control" name="evtfecfin">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                    Agregar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ESTACIONES -->
+            <div class="border rounded-3 shadow p-3" style="flex-grow: 1;background-color: snow;">
+                <!-- Tabla -->
+                <div class="mb-2">
+                    <h2 class="text-muted"><i class="bi bi-clipboard2-pulse"></i> Estaciones</h2>
+                    <hr>
+                    <div style="height: 250px;">
+                        <table id="estaciones-tbl" class="table table-hover evt-est">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Estación</th>
+                                    <th class="text-center">Activo</th>
+                                    <th class="text-center">Acc</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% estaciones.forEach(est=>{ %>
+                                    <tr id="reg-<%= est.id%>">
+                                        <% for(let col in est) { if(col==="estatus" ) { if(est[col]=="activo" ) { %>
+                                            <td class="text-center">
+                                                <input class="form-check-input estatus-chk" type="checkbox" value=""
+                                                    data-id="<%= est['id']%>" data-tipo="estaciones" checked>
+                                            </td>
+                                            <% } else {%>
+                                                <td class="text-center">
+                                                    <input class="form-check-input estatus-chk" data-tipo="estaciones"
+                                                        data-id="<%= est['id']%>" type="checkbox" value="">
+                                                </td>
+                                                <% }%>
+                                                    <%} else{ %>
+                                                        <td>
+                                                            <%= est[col] %>
+                                                        </td>
+                                                        <% } %>
+                                                            <% } %>
+                                                                <td class="text-center">
+                                                                    <button data-id="<%= est['id']%>"
+                                                                        data-tipo="estaciones"
+                                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                                        title="Eliminar" data-bs-toggle="modal"
+                                                                        data-bs-target="#confirmar-eliminacion-modal"><i
+                                                                            class="bi bi-trash"></i></button>
+                                                                </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Horario de atencion -->
+                <div class="mt-4">
+                    <h5><i class="bi bi-clock"></i> Horario de atención</h5>
+                    <form id="horario-atencion-frm" class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2">
+                        <div class="input-group">
+                            <label class="input-group-text" for="evtfecini">Desde</label>
+                            <select class="form-select" name="desde">
+                                <option value="" selected>Seleccione</option>
+                                <% horarios.forEach(hr=> {%>
+                                    <option value="<%= hr.hora %>">
+                                        <%= hr.hora%>
+                                    </option>
+                                    <%})%>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-group-text" for="evtfecfin">Hasta</label>
+                            <select class="form-select" name="hasta">
+                                <option value="" selected>Seleccione</option>
+                                <% horarios.forEach(hr=> {%>
+                                    <option value="<%= hr.hora %>">
+                                        <%= hr.hora%>
+                                    </option>
+                                    <%})%>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                Aceptar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Agregar -->
+                <div class="mt-4">
+                    <h5><i class="bi bi-plus"></i> Nueva estación</h5>
+                    <form id="nueva-estacion-frm" class="d-grid gap-2 mt-2">
+                        <input type="text" id="estacion-descripcion" class="form-control" name="estacion"
+                            placeholder="Nombre de la estación">
+                        <input type="file" id="estacion-img" class="form-control" name="imagen" accept=".jpg, .jpeg">
+                        <small class="text-muted">Imagen de la estación, formato jpg, png, 1000x500 px</small>
+
+                        <div class="col-auto">
+                            <button class="btn btn-success" id="agregar-estacion-btn"><i class="bi bi-check-lg"></i>
+                                Agregar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORIAL DE REGISTROS -->
+        <h2 class="text-muted"><i class="bi bi-database"></i> Historial de registros de usuarios</h2>
         <hr>
+
         <div class="table-responsive">
             <table id="registros-agenda-tbl" class="table table-hover" style="width:100%">
                 <thead class="table-dark">
                     <tr>
+                        <th>#</th>
                         <th>Fecha Registro</th>
                         <th>Nombre</th>
                         <th>Cedula</th>
+                        <th>Edad</th>
+                        <th>Genero</th>
+                        <th>Estado</th>
+                        <th>Ciudad</th>
                         <th>Teléfono</th>
                         <th>Correo</th>
                         <th>Instagram</th>
+                        <th>Evento</th>
+                        <th>Equipo</th>
+                        <th>Categoria</th>
                         <th>Estación</th>
                         <th>Fecha cita</th>
                         <th>Hora cita</th>
@@ -57,7 +239,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% for(let reg of registros) { %>
+                    <% registros.forEach(reg=>{ %>
                         <tr>
                             <% for(let col in reg) { if(col=="concluida" ){ if(reg[col]==0){ %>
                                 <td class="text-center">
@@ -70,45 +252,13 @@
                                         <i class="bi bi-check-lg text-success" alt="Cita concluida"
                                             style="font-size:2em"></i>
                                     </td>
-                                    <%} }else { let dato; switch(col){ case "fecha_reg" : %>
+                                    <%} }else { %>
                                         <td>
                                             <%= reg[col] %>
                                         </td>
-                                        <%; break; case "nombre" : %>
-                                            <td>
-                                                <%= reg[col] %>
-                                            </td>
-                                            <%; break; case "cedula" : %>
-                                                <td>
-                                                    <%= reg[col] %>
-                                                </td>
-                                                <%; break; case "telefono" : %>
-                                                    <td>
-                                                        <%= reg[col] %>
-                                                    </td>
-                                                    <%; break; case "correo" : %>
-                                                        <td>
-                                                            <%= reg[col] %>
-                                                        </td>
-                                                        <%; break; case "instagram" : %>
-                                                            <td>
-                                                                <%= reg[col] %>
-                                                            </td>
-                                                            <%; break; case "estacion" : %>
-                                                                <td>
-                                                                    <%= reg[col] %>
-                                                                </td>
-                                                                <%; break; case "fecha_cita" : %>
-                                                                    <td>
-                                                                        <%= reg[col] %>
-                                                                    </td>
-                                                                    <%; break; case "hora_cita" : %>
-                                                                        <td>
-                                                                            <%= reg[col] %>
-                                                                        </td>
-                                                                        <%; break; break; } } }%>
+                                        <%} }%>
                         </tr>
-                        <% } %>
+                        <% }) %>
                 </tbody>
             </table>
         </div>
@@ -148,7 +298,7 @@
         </div>
     </div>
 
-    <!-- MODAL AVISOS -->
+    <!-- MODAL AVISO DE ERROR -->
     <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
@@ -157,6 +307,55 @@
                     <div class="alert alert-danger m-0" role="alert">
                         <b><i class="bi bi-exclamation-triangle"></i> Error en operación, intente nuevamente.</b>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AVISO OPERACION EXITOSA -->
+    <div class="modal fade" id="exito-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="alert alert-success m-0" role="alert">
+                        <i class="bi bi-check-lg"></i> Operación ejecutada exitosamente.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AVISO CAMPOS VACIOS -->
+    <div class="modal fade" id="campos-vacios-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="alert alert-warning m-0" role="alert">
+                        <b><i class="bi bi-exclamation-triangle"></i> Debe completar todos los campos para
+                            continuar.</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMACION ELIMINAR -->
+    <div class="modal fade" id="confirmar-eliminacion-modal" tabindex="-1" data-bs-backdrop="static"
+        data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId"><i class="bi bi-trash"></i> Eliminar registro</h5>
+                </div>
+                <div class="modal-body">
+                    Esta a punto de eliminar el registro seleccionado, desea continuar?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
+                    <button id="confirmar-eliminar-btn" type="button" class="btn btn-danger"
+                        data-bs-dismiss="modal">Si</button>
                 </div>
             </div>
         </div>
