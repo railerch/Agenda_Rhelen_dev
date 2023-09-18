@@ -8,99 +8,32 @@ window.onload = () => {
         // LIMPIAR EL SESIONSTORAGE
         sessionStorage.clear();
 
-        // DATOS DEL EVENTO ACTIVO
-        fetch(`${server}/evento-activo`)
+        /* EVENTOS ACTIVOS
+        fetch(`${server}/eventos-activos`)
             .then(res => res.json())
             .then(res => {
                 sessionStorage.setItem("evento", JSON.stringify(res[0]));
             })
             .catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+            */
 
-        // AVANCE Y RETORNO ENTRE PANTALLAS / REGISTRAR CITA
-        sessionStorage.removeItem("datosRegistro");
-        sessionStorage.setItem("pantallaActual", 1);
-        document.querySelector("div[data-paso='1']").style.visibility = "visible";
-        document.querySelector("div[data-screen='1']").style.display = "block";
+        // SELECCIONAR EVENTO PARA FIJAR LAS FECHAS DE ATENCION
+        document.getElementById("evento-list").addEventListener("change", function () {
+            let evento = this.value;
+            let fecIni, fecFin;
+            if (evento == "Sin evento") {
+                fecIni = new Date(Date.now()).toISOString().split("T")[0];
+                console.log(fecIni);
+                fecFin = "2050-01-01";
+            } else {
+                fecIni = this.options[this.selectedIndex].getAttribute("data-fecha-ini");
+                fecFin = this.options[this.selectedIndex].getAttribute("data-fecha-fin");
+            }
 
-        document.querySelectorAll(".control-btn").forEach(btn => {
-            btn.addEventListener("click", function () {
-                let accion = this.getAttribute("data-direction");
-                let pantAct = parseInt(sessionStorage.getItem("pantallaActual"));
-                let next;
+            sessionStorage.setItem("evtFecha", JSON.stringify({ evento, fecha_ini: fecIni, fecha_fin: fecFin }));
 
-                // Cambiar pantalla segun la accion
-                switch (accion) {
-                    case "atras":
-                        next = pantAct == 1 ? pantAct : pantAct - 1;
-                        if (next == 1) {
-                            btn.style.display = "none";
-                        } else if (next == 2) {
-                            document.getElementById("finalizar-btn").style.display = "none";
-                            document.getElementById("adelante-btn").style.display = "inline";
-                        }
-
-                        fn.mostrarOcultarPantallas(pantAct, next);
-                        sessionStorage.setItem("pantallaActual", next);
-                        break;
-                    case "adelante":
-                        next = pantAct == 4 ? pantAct : pantAct + 1;
-                        if (next == 3) {
-                            btn.style.display = "none";
-
-                            // Mostrar datos para validacion visual por parte del usuario
-                            fn.datos_de_registro();
-                        } else if (next == 2) {
-                            document.getElementById("atras-btn").style.display = "inline"
-                            document.getElementById("adelante-btn").style.display = "inline"
-                            document.getElementById("finalizar-btn").style.display = "none"
-                        }
-
-                        fn.mostrarOcultarPantallas(pantAct, next);
-                        sessionStorage.setItem("pantallaActual", next);
-                        break;
-                    case "finalizar":
-                        // Registrar datos de cita en BD
-                        let dat = JSON.parse(sessionStorage.getItem("datosRegistro"));
-                        dat.evento = sessionStorage.getItem("evento") != "undefined" ? JSON.parse(sessionStorage.getItem("evento")).descripcion : "Sin evento";
-                        let datos = new URLSearchParams(dat).toString();
-                        fn.preloader();
-                        fetch(`${server}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
-                            .then(res => res.json())
-                            .then(res => {
-                                /*La ventana modal con el preloader.gif tarda 300ms en activarse, si se trata de desactivar
-                               antes de este tiempo quedara activa y bloqueara la interaccion con el formulario*/
-                                setTimeout(() => {
-                                    next = 4;
-                                    fn.preloader(false);
-                                    fn.mostrarOcultarPantallas(pantAct, next);
-                                    sessionStorage.setItem("pantallaActual", next);
-                                    sessionStorage.removeItem("datosRegistro");
-
-                                    btn.style.display = "none";
-                                    document.getElementById("atras-btn").style.display = "none";
-                                    document.getElementById("adelante-btn").style.display = "none";
-                                    document.getElementById("pagina-principal-btn").style.display = "inline";
-                                }, 500)
-                            }).catch(err => {
-                                console.log("HA OCURRIDO UN ERROR: " + err);
-                            })
-
-                        break;
-                }
-                fn.preloader(false);
-            })
-        })
-
-        // ALMACENAR DATOS CONFORME SE INGRESAN EN PANTALLA
-        // Generar un conjunto de datos que este activo durante el llenado del formulario para al finalizar insertarlos en la BD
-        let dataSet = new Map()
-        document.querySelectorAll("input, select").forEach(el => {
-            el.addEventListener("blur", function () {
-                let key = this.getAttribute("name").replace("-", "_");
-                let val = this.value;
-                dataSet.set(`${key}`, val);
-                sessionStorage.setItem("datosRegistro", JSON.stringify(Object.fromEntries(dataSet)));
-            })
+            // Habilitar la seleccion de estacion
+            document.querySelector("select[name=estacion]").removeAttribute("disabled");
         })
 
         // CAMBIAR IMAGEN / CONSULTAR FECHAS Y HORARIOS DISPONIBLES AL CAMBIAR DE ESTACION
@@ -138,21 +71,21 @@ window.onload = () => {
 
         })
 
-        // CONSULTAR HORARIOS DISPONIBLES AL CAMBIAR LA FECHA
+        // CONSULTAR HORARIOS DISPONIBLES AL CAMBIAR LA FECHA LA CUAL DEBE ESTAR EN EL RANGO DE FECHA DEL EVENTO
         document.querySelector("input[name=fecha-cita]").addEventListener("change", function () {
             let estacion = document.querySelector("select[name=estacion]");
             let horaCita = document.querySelector("select[name=hora-cita]");
             let horaCitaOpt = document.querySelectorAll("select[name=hora-cita] option");
 
             // Limitar fechas de atencion
-            let evento = sessionStorage.getItem("evento") != "undefined" ? JSON.parse(sessionStorage.getItem("evento")) : null;
-            let fecInicio = evento ? Date.parse(evento.fecha_ini) : Date.parse(new Date(Date.now()).toISOString().split("T")[0]);
-            let fecLimite = evento ? Date.parse(evento.fecha_fin) : Date.parse("2050-01-01");
+            let evento = JSON.parse(sessionStorage.getItem("evtFecha"));
+            let fecInicio = Date.parse(evento.fecha_ini);
+            let fecLimite = Date.parse(evento.fecha_fin);
             let fecSelec = Date.parse(this.value);
 
             if (fecSelec < fecInicio || fecSelec > fecLimite) {
-                document.querySelector("#limite-fecha-modal #fecha-ini").innerText = evento ? evento.fecha_ini : "hoy";
-                document.querySelector("#limite-fecha-modal #fecha-fin").innerText = evento ? evento.fecha_fin : "sin fecha limite.";
+                document.querySelector("#limite-fecha-modal #fecha-ini").innerText = "hoy";
+                document.querySelector("#limite-fecha-modal #fecha-fin").innerText = "sin fecha limite.";
                 $("#limite-fecha-modal").modal("show");
                 this.value = "";
 
@@ -199,6 +132,93 @@ window.onload = () => {
 
                     }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
             }
+        })
+
+        // AVANCE Y RETORNO ENTRE PANTALLAS / REGISTRAR CITA
+        sessionStorage.removeItem("datosRegistro");
+        sessionStorage.setItem("pantallaActual", 1);
+        document.querySelector("div[data-paso='1']").style.visibility = "visible";
+        document.querySelector("div[data-screen='1']").style.display = "block";
+
+        document.querySelectorAll(".control-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                let accion = this.getAttribute("data-direction");
+                let pantAct = parseInt(sessionStorage.getItem("pantallaActual"));
+                let next;
+
+                // Cambiar pantalla segun la accion
+                switch (accion) {
+                    case "atras":
+                        next = pantAct == 1 ? pantAct : pantAct - 1;
+                        if (next == 1) {
+                            btn.style.display = "none";
+                        } else if (next == 2) {
+                            document.getElementById("finalizar-btn").style.display = "none";
+                            document.getElementById("adelante-btn").style.display = "inline";
+                        }
+
+                        fn.mostrarOcultarPantallas(pantAct, next);
+                        sessionStorage.setItem("pantallaActual", next);
+                        break;
+                    case "adelante":
+                        next = pantAct == 4 ? pantAct : pantAct + 1;
+                        if (next == 3) {
+                            btn.style.display = "none";
+
+                            // Mostrar datos para validacion visual por parte del usuario
+                            fn.datos_de_registro();
+                        } else if (next == 2) {
+                            document.getElementById("atras-btn").style.display = "inline"
+                            document.getElementById("adelante-btn").style.display = "inline"
+                            document.getElementById("finalizar-btn").style.display = "none"
+                        }
+
+                        fn.mostrarOcultarPantallas(pantAct, next);
+                        sessionStorage.setItem("pantallaActual", next);
+                        break;
+                    case "finalizar":
+                        // Registrar datos de cita en BD
+                        let dat = JSON.parse(sessionStorage.getItem("datosRegistro"));
+                        dat.evento = sessionStorage.getItem("evtFecha") != "undefined" ? JSON.parse(sessionStorage.getItem("evtFecha")).descripcion : "Sin evento";
+                        let datos = new URLSearchParams(dat).toString();
+                        fn.preloader();
+                        fetch(`${server}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
+                            .then(res => res.json())
+                            .then(res => {
+                                /*La ventana modal con el preloader.gif tarda 300ms en activarse, si se trata de desactivar
+                               antes de este tiempo quedara activa y bloqueara la interaccion con el formulario*/
+                                setTimeout(() => {
+                                    next = 4;
+                                    fn.preloader(false);
+                                    fn.mostrarOcultarPantallas(pantAct, next);
+                                    sessionStorage.setItem("pantallaActual", next);
+                                    sessionStorage.removeItem("datosRegistro");
+
+                                    btn.style.display = "none";
+                                    document.getElementById("atras-btn").style.display = "none";
+                                    document.getElementById("adelante-btn").style.display = "none";
+                                    document.getElementById("pagina-principal-btn").style.display = "inline";
+                                }, 500)
+                            }).catch(err => {
+                                console.log("HA OCURRIDO UN ERROR: " + err);
+                            })
+
+                        break;
+                }
+                fn.preloader(false);
+            })
+        })
+
+        // ALMACENAR DATOS CONFORME SE INGRESAN EN PANTALLA
+        // Generar un conjunto de datos que este activo durante el llenado del formulario para al finalizar insertarlos en la BD
+        let dataSet = new Map()
+        document.querySelectorAll("input, select").forEach(el => {
+            el.addEventListener("blur", function () {
+                let key = this.getAttribute("name").replace("-", "_");
+                let val = this.value;
+                dataSet.set(`${key}`, val);
+                sessionStorage.setItem("datosRegistro", JSON.stringify(Object.fromEntries(dataSet)));
+            })
         })
     }
 

@@ -59,12 +59,26 @@
                 <div class="d-flex flex-wrap-reverse justify-content-center my-3">
                     <!-- FECHA / HORA / ESTACION -->
                     <div id="hora-fecha-div" class="col-md-6 mt-3 mt-md-0 p-1">
+                        <!-- EVENTO -->
+                        <div class="input-group">
+                            <div class="input-group-text col-4 col-md-2">Evento</div>
+                            <select id="evento-list" name="evento" class="form-select">
+                                <option value="" selected>Seleccionar evento</option>
+                                <option value="Sin evento">Sin evento</option>
+                                <% eventos.forEach( evt=> { %>
+                                    <option value='<%= evt.descripcion %>' data-fecha-ini='<%= evt.fecha_ini %>'
+                                        data-fecha-fin='<%= evt.fecha_fin %>'>
+                                        <%= evt.descripcion %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
 
                         <!-- ESTACION -->
-                        <div class="input-group">
-                            <div class="input-group-text col-4 col-md-2">Estaciones</div>
-                            <select name="estacion" class="form-select form-select">
-                                <option value="sinEstacion" selected>Seleccione la estación</option>
+                        <div class="input-group mt-3">
+                            <div class="input-group-text col-4 col-md-2">Estación</div>
+                            <select name="estacion" class="form-select" disabled>
+                                <option value="sinEstacion" selected>Seleccionar estación</option>
                                 <% estaciones.forEach( est=> { %>
                                     <option value='<%= est.descripcion %>'>
                                         <%= est.descripcion %>
@@ -82,7 +96,7 @@
                         <!-- HORA -->
                         <div class="input-group mt-3">
                             <div class="input-group-text col-4 col-md-2">Horarios</div>
-                            <select name="hora-cita" class="form-select form-select" disabled>
+                            <select name="hora-cita" class="form-select" disabled>
                                 <option value="" selected>Hora de su cita</option>
                                 <% horarios.forEach( hr=> { %>
                                     <option value="<%=hr.hora %>" style="color:green">
@@ -128,7 +142,7 @@
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Genero</div>
-                                <select class="form-select form-select" name="genero">
+                                <select class="form-select" name="genero">
                                     <option value="Prefiero no decirlo" selected>Prefiero no decirlo</option>
                                     <option value="Masculino">Masculino</option>
                                     <option value="Femenino">Femenino</option>
@@ -139,7 +153,7 @@
                         <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Estado</div>
-                                <select class="form-select form-select" name="estado">
+                                <select class="form-select" name="estado">
                                     <option value="" selected>Seleccione</option>
                                     <option value="Amazonas">Amazonas</option>
                                     <option value="Anzoátegui">Anzoátegui</option>
@@ -192,7 +206,7 @@
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Categoria</div>
-                                <select class="form-select form-select" name="categoria">
+                                <select class="form-select" name="categoria">
                                     <option value="Equipos novatos" selected>Seleccionar</option>
                                     <option value="Equipos novatos">Equipos novatos</option>
                                     <option value="Equipos escalados">Equipos escalados</option>

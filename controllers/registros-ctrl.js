@@ -17,12 +17,18 @@ const landingPage = (req, res) => {
 const vistaFormulario = (req, res) => {
     async function tmp() {
         try {
+            // Actualizar estatus de eventos pasados
+            let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
+            await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
+
             [hrAtencion, metadata] = await conn.query("SELECT desde, hasta FROM horario_atencion WHERE id = 1");
             [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
+            [eventos, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
             [horarios, metadata] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${hrAtencion[0].desde}' AND '${hrAtencion[0].hasta}'`);
+            
             res.status(200);
             res.header("content-type", "text/html");
-            res.render("data-entry", { estaciones: estaciones, horarios: horarios, server: data[0].server });
+            res.render("data-entry", { eventos, estaciones, horarios, server: data[0].server });
         } catch (error) {
             res.status(500);
             res.send(error.name);
@@ -93,7 +99,8 @@ const actualizarEstatusEstaciones = (req, res) => {
     tmp();
 }
 
-const eventoActivo = (req, res) => {
+// ??????????????????????
+const eventosActivos = (req, res) => {
     async function tmp() {
         try {
             [rows, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
@@ -329,7 +336,7 @@ module.exports = {
     consultarRegistros,
     concluirCita,
     horariosNoDisponibles,
-    eventoActivo,
+    eventosActivos,
     agregarEvento,
     eliminarEvento,
     agregarEstacion,

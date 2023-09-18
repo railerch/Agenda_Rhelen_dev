@@ -17,7 +17,7 @@ const UPLOAD = MULTER({ storage: storage })
 ROUTER.get("/", CTRL.landingPage);
 ROUTER.get("/dataentry", CTRL.vistaFormulario);
 ROUTER.get("/dataquery", CTRL.vistaTabla);
-ROUTER.get("/evento-activo", CTRL.eventoActivo);
+ROUTER.get("/eventos-activos", CTRL.eventosActivos);
 ROUTER.post("/agregar-evento", CTRL.agregarEvento);
 ROUTER.get("/eliminar-evento/:id", CTRL.eliminarEvento);
 ROUTER.get("/actualizar-estatus-estaciones/:st/:id", CTRL.actualizarEstatusEstaciones);
