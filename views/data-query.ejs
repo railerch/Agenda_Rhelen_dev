@@ -89,68 +89,6 @@
 
                 <!-- Gestion de eventos -->
                 <div class="accordion" id="accordionEventos">
-                    <!-- Modificar horario de atencion -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading1">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#horarios-acc" aria-expanded="true" aria-controls="horarios-acc">
-                                <b>Modificar Horarios</b>
-                            </button>
-                        </h2>
-
-                        <div id="horarios-acc" class="accordion-collapse collapse" aria-labelledby="headinghorarios-acc"
-                            data-bs-parent="#accordionEventos">
-                            <div class="accordion-body">
-                                <form id="horario-atencion-frm">
-                                    <!-- Evento -->
-                                    <div class="input-group">
-                                        <label class="input-group-text" for="evento">Evento</label>
-                                        <select class="form-select" name="evento">
-                                            <option value="" selected>Seleccione</option>
-                                            <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
-                                                <option value="<%= evt.id %>">
-                                                    <%= evt.descripcion%>
-                                                </option>
-                                                <% }})%>
-                                        </select>
-                                    </div>
-
-                                    <!-- Horario -->
-                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
-                                            <select class="form-select" name="inicio">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
-                                            <select class="form-select" name="cierre">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- Boton -->
-                                    <div class="col-auto text-end">
-                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
-                                            Aceptar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Agregar nuevo evento -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading2">
@@ -208,6 +146,68 @@
                                     <div class="col-auto text-end">
                                         <button class="btn btn-success"><i class="bi bi-check-lg"></i>
                                             Agregar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modificar horario de atencion -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#horarios-acc" aria-expanded="true" aria-controls="horarios-acc">
+                                <b>Modificar Horarios</b>
+                            </button>
+                        </h2>
+
+                        <div id="horarios-acc" class="accordion-collapse collapse" aria-labelledby="headinghorarios-acc"
+                            data-bs-parent="#accordionEventos">
+                            <div class="accordion-body">
+                                <form id="horario-atencion-frm">
+                                    <!-- Evento -->
+                                    <div class="input-group">
+                                        <label class="input-group-text" for="evento">Evento</label>
+                                        <select class="form-select" name="evento">
+                                            <option value="" selected>Seleccione</option>
+                                            <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
+                                                <option value="<%= evt.id %>">
+                                                    <%= evt.descripcion%>
+                                                </option>
+                                                <% }})%>
+                                        </select>
+                                    </div>
+
+                                    <!-- Horario -->
+                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
+                                            <select class="form-select" name="inicio">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
+                                            <select class="form-select" name="cierre">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Boton -->
+                                    <div class="col-auto text-end">
+                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                            Aceptar</button>
                                     </div>
                                 </form>
                             </div>
