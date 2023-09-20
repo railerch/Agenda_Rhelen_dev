@@ -46,12 +46,12 @@
         <!-- EVENTOS & ESTACIONES -->
         <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-4 mb-5 mb-lg-4">
             <!-- EVENTOS -->
-            <div class="col-12 col-md-6 border rounded-3 shadow p-3" style="background-color: snow;">
-                <!-- Tabla -->
+            <div class="col-12 col-md-8 border rounded-3 shadow p-3" style="background-color: snow;">
+                <!-- Tabla de eventos -->
                 <div class="mb-3">
                     <h2 class="text-muted"><i class="bi bi-trophy"></i> Eventos</h2>
                     <hr>
-                    <div class="mb-2">
+                    <div class="table-responsive mb-2">
                         <table id="eventos-tbl" class="table table-hover evt-est">
                             <thead class="table-dark">
                                 <tr>
@@ -59,6 +59,8 @@
                                     <th>Descripción</th>
                                     <th>Fecha Ini.</th>
                                     <th>Fecha Fin.</th>
+                                    <th>Inicio</th>
+                                    <th>Cierre</th>
                                     <th class="text-center">Estatus</th>
                                     <th class="text-center">Acc</th>
                                 </tr>
@@ -85,36 +87,142 @@
                     </div>
                 </div>
 
-                <!-- Agregar -->
-                <div class="mt-4">
-                    <h5><i class="bi bi-plus"></i> Nuevo evento</h5>
-                    <form id="nuevo-evento-frm">
-                        <input type="text" class="form-control" name="evtdesc" placeholder="Nombre del evento">
-                        <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 mt-2">
-                            <div class="input-group">
-                                <label class="input-group-text" for="evtfecini">Desde</label>
-                                <input type="date" class="form-control" name="evtfecini">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-group-text" for="evtfecfin">Hasta</label>
-                                <input type="date" class="form-control" name="evtfecfin">
-                            </div>
-                            <div class="col-auto">
-                                <button class="btn btn-success"><i class="bi bi-check-lg"></i>
-                                    Agregar</button>
+                <!-- Gestion de eventos -->
+                <div class="accordion" id="accordionEventos">
+                    <!-- Modificar horario de atencion -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#horarios-acc" aria-expanded="true" aria-controls="horarios-acc">
+                                <b>Modificar Horarios</b>
+                            </button>
+                        </h2>
+
+                        <div id="horarios-acc" class="accordion-collapse collapse" aria-labelledby="headinghorarios-acc"
+                            data-bs-parent="#accordionEventos">
+                            <div class="accordion-body">
+                                <form id="horario-atencion-frm">
+                                    <!-- Evento -->
+                                    <div class="input-group">
+                                        <label class="input-group-text" for="evento">Evento</label>
+                                        <select class="form-select" name="evento">
+                                            <option value="" selected>Seleccione</option>
+                                            <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
+                                                <option value="<%= evt.id %>">
+                                                    <%= evt.descripcion%>
+                                                </option>
+                                                <% }})%>
+                                        </select>
+                                    </div>
+
+                                    <!-- Horario -->
+                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
+                                            <select class="form-select" name="inicio">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
+                                            <select class="form-select" name="cierre">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Boton -->
+                                    <div class="col-auto text-end">
+                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                            Aceptar</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Agregar nuevo evento -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading2">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#eventos-acc" aria-expanded="true" aria-controls="eventos-acc">
+                                <b>Nuevo evento</b>
+                            </button>
+                        </h2>
+                        <div id="eventos-acc" class="accordion-collapse collapse" aria-labelledby="headingeventos-acc"
+                            data-bs-parent="#accordionEventos">
+                            <div class="accordion-body">
+                                <form id="nuevo-evento-frm">
+                                    <!-- Evento -->
+                                    <input type="text" class="form-control" name="evtdesc"
+                                        placeholder="Nombre del evento">
+
+                                    <!-- Fecha -->
+                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtfecini">Desde</label>
+                                            <input type="date" class="form-control" name="evtfecini">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtfecfin">Hasta</label>
+                                            <input type="date" class="form-control" name="evtfecfin">
+                                        </div>
+                                    </div>
+
+                                    <!-- Horario -->
+                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
+                                            <select class="form-select" name="inicio">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
+                                            <select class="form-select" name="cierre">
+                                                <option value="" selected>Seleccione</option>
+                                                <% horarios.forEach(hr=> {%>
+                                                    <option value="<%= hr.hora %>">
+                                                        <%= hr.hora%>
+                                                    </option>
+                                                    <%})%>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto text-end">
+                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                            Agregar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- ESTACIONES -->
             <div class="border rounded-3 shadow p-3" style="flex-grow: 1;background-color: snow;">
                 <!-- Tabla -->
-                <div class="mb-2">
+                <div class="mb-3">
                     <h2 class="text-muted"><i class="bi bi-clipboard2-pulse"></i> Estaciones</h2>
                     <hr>
-                    <div style="height: 250px;">
+                    <div class="table-responsive mb-2">
                         <table id="estaciones-tbl" class="table table-hover evt-est">
                             <thead class="table-dark">
                                 <tr>
@@ -159,53 +267,36 @@
                     </div>
                 </div>
 
-                <!-- Horario de atencion -->
-                <div class="mt-4">
-                    <h5><i class="bi bi-clock"></i> Horario de atención</h5>
-                    <form id="horario-atencion-frm" class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2">
-                        <div class="input-group">
-                            <label class="input-group-text" for="evtfecini">Desde</label>
-                            <select class="form-select" name="desde">
-                                <option value="" selected>Seleccione</option>
-                                <% horarios.forEach(hr=> {%>
-                                    <option value="<%= hr.hora %>">
-                                        <%= hr.hora%>
-                                    </option>
-                                    <%})%>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label class="input-group-text" for="evtfecfin">Hasta</label>
-                            <select class="form-select" name="hasta">
-                                <option value="" selected>Seleccione</option>
-                                <% horarios.forEach(hr=> {%>
-                                    <option value="<%= hr.hora %>">
-                                        <%= hr.hora%>
-                                    </option>
-                                    <%})%>
-                            </select>
-                        </div>
-                        <div class="col-auto">
-                            <button class="btn btn-success"><i class="bi bi-check-lg"></i>
-                                Aceptar</button>
-                        </div>
-                    </form>
-                </div>
+                <!-- Gestion de estaciones -->
+                <div class="accordion" id="accordionEstaciones">
+                    <!-- Agregar estacion -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#estaciones-acc" aria-expanded="true" aria-controls="estaciones-acc">
+                                <b>Nueva estación</b>
+                            </button>
+                        </h2>
 
-                <!-- Agregar -->
-                <div class="mt-4">
-                    <h5><i class="bi bi-plus"></i> Nueva estación</h5>
-                    <form id="nueva-estacion-frm" class="d-grid gap-2 mt-2">
-                        <input type="text" id="estacion-descripcion" class="form-control" name="estacion"
-                            placeholder="Nombre de la estación">
-                        <input type="file" id="estacion-img" class="form-control" name="imagen" accept=".jpg, .jpeg">
-                        <small class="text-muted">Imagen de la estación: formato jpg 1000x500 px</small>
+                        <div id="estaciones-acc" class="accordion-collapse collapse"
+                            aria-labelledby="headingestaciones-acc" data-bs-parent="#accordionEstaciones">
+                            <div class="accordion-body">
+                                <form id="nueva-estacion-frm" class="d-grid gap-2 mt-2">
+                                    <input type="text" id="estacion-descripcion" class="form-control" name="estacion"
+                                        placeholder="Nombre de la estación">
+                                    <input type="file" id="estacion-img" class="form-control" name="imagen"
+                                        accept=".jpg, .jpeg">
+                                    <small class="text-muted">Imagen de estación: formato jpg 1000x500 px</small>
 
-                        <div class="col-auto">
-                            <button class="btn btn-success" id="agregar-estacion-btn"><i class="bi bi-check-lg"></i>
-                                Agregar</button>
+                                    <div class="col-auto text-end">
+                                        <button class="btn btn-success" id="agregar-estacion-btn"><i
+                                                class="bi bi-check-lg"></i>
+                                            Agregar</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

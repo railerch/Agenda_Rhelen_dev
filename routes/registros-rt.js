@@ -22,7 +22,7 @@ ROUTER.post("/agregar-evento", CTRL.agregarEvento);
 ROUTER.get("/eliminar-evento/:id", CTRL.eliminarEvento);
 ROUTER.get("/actualizar-estatus-estaciones/:st/:id", CTRL.actualizarEstatusEstaciones);
 ROUTER.post("/agregar-estacion", UPLOAD.single("imagen"), CTRL.agregarEstacion);
-ROUTER.post("/horario-atencion", CTRL.horarioAtencion);
+ROUTER.post("/modificar-horario-atencion", CTRL.modificarHorarioAtencion);
 ROUTER.get("/eliminar-estacion/:id", CTRL.eliminarEstacion);
 ROUTER.get("/concluir-cita/:id/:cedula", CTRL.concluirCita);
 ROUTER.get("/horarios/:fechaCita/:estacion", CTRL.horariosNoDisponibles);

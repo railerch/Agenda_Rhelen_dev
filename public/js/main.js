@@ -382,17 +382,20 @@ window.onload = () => {
             }
         })
 
-        // Horario de atencion
+        // Modificar horario de atencion
         document.getElementById("horario-atencion-frm").addEventListener("submit", function (evt) {
             evt.preventDefault();
 
             let body = new URLSearchParams(new FormData(document.getElementById("horario-atencion-frm"))).toString();
             console.log(body);
 
-            fetch(`${server}/horario-atencion`, { method: "post", body, headers: { "content-type": "application/x-www-form-urlencoded" } })
+            fetch(`${server}/modificar-horario-atencion`, { method: "post", body, headers: { "content-type": "application/x-www-form-urlencoded" } })
                 .then(res => res.json())
                 .then(res => {
                     $("#exito-modal").modal("show");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1500)
                 })
                 .catch(err => {
                     $("#error-modal").modal("show");
@@ -471,11 +474,13 @@ window.onload = () => {
         let tablas = ["#eventos-tbl", "#estaciones-tbl"];
         tablas.forEach(tbl => {
             new DataTable(`${tbl}`, {
+                fixedHeader: true,
                 info: false,
                 searching: false,
                 paging: false,
                 scrollCollapse: true,
-                scrollY: '200px'
+                scrollY: '250px',
+                scrollX: true
             })
         })
 

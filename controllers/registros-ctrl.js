@@ -21,11 +21,10 @@ const vistaFormulario = (req, res) => {
             let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
 
-            [hrAtencion, metadata] = await conn.query("SELECT desde, hasta FROM horario_atencion WHERE id = 1");
+            [hrAtencion, metadata] = await conn.query("SELECT * FROM horario_atencion WHERE id = 1");
             [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
             [eventos, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
-            [horarios, metadata] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${hrAtencion[0].desde}' AND '${hrAtencion[0].hasta}'`);
-            
+
             res.status(200);
             res.header("content-type", "text/html");
             res.render("data-entry", { eventos, estaciones, horarios, server: data[0].server });
@@ -122,7 +121,7 @@ const agregarEvento = (req, res) => {
         let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
         try {
             // Agregar nuevo evento
-            await conn.query(`INSERT INTO eventos SET id = null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', estatus='En curso'`);
+            await conn.query(`INSERT INTO eventos SET id = null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estatus='En curso'`);
 
             // Actualizar estatus de eventos pasados
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
@@ -182,13 +181,14 @@ const agregarEstacion = (req, res) => {
     tmp();
 }
 
-const horarioAtencion = (req, res) => {
-    let desde = req.body.desde;
-    let hasta = req.body.hasta;
+const modificarHorarioAtencion = (req, res) => {
+    let eventoId = req.body.evento
+    let inicio = req.body.inicio;
+    let cierre = req.body.cierre;
 
     async function tmp() {
         try {
-            await conn.query(`UPDATE horario_atencion SET desde='${desde}', hasta='${hasta}' WHERE id= 1`);
+            await conn.query(`UPDATE eventos SET hora_inicio='${inicio}', hora_cierre='${cierre}' WHERE id='${eventoId}'`);
             res.header("content-type", "application/json");
             res.json({ stmt: true });
             res.end();
@@ -342,5 +342,5 @@ module.exports = {
     agregarEstacion,
     eliminarEstacion,
     actualizarEstatusEstaciones,
-    horarioAtencion
+    modificarHorarioAtencion
 }
