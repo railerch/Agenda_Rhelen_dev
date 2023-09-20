@@ -64,10 +64,10 @@
                             <div class="input-group-text col-4 col-md-2">Evento</div>
                             <select id="evento-list" name="evento" class="form-select">
                                 <option value="" selected>Seleccionar evento</option>
-                                <option value="Sin evento">Sin evento</option>
                                 <% eventos.forEach( evt=> { %>
-                                    <option value='<%= evt.descripcion %>' data-fecha-ini='<%= evt.fecha_ini %>'
-                                        data-fecha-fin='<%= evt.fecha_fin %>'>
+                                    <option value='<%= evt.descripcion %>' data-evt-id='<%= evt.id %>'
+                                        data-fecha-ini='<%= evt.fecha_ini %>' data-fecha-fin='<%= evt.fecha_fin %>'
+                                        data-evt-inicio='<%= evt.hora_inicio %>' data-evt-cierre='<%= evt.hora_cierre %>'>
                                         <%= evt.descripcion %>
                                     </option>
                                     <% }) %>
@@ -98,11 +98,12 @@
                             <div class="input-group-text col-4 col-md-2">Horarios</div>
                             <select name="hora-cita" class="form-select" disabled>
                                 <option value="" selected>Hora de su cita</option>
+                                <!-- 
                                 <% horarios.forEach( hr=> { %>
                                     <option value="<%=hr.hora %>" style="color:green">
                                         <%= hr.hora %>
                                     </option>
-                                    <% }) %>
+                                    <% }) %>-->
                             </select>
                         </div>
                     </div>

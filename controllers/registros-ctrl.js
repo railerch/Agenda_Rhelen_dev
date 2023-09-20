@@ -22,6 +22,7 @@ const vistaFormulario = (req, res) => {
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
 
             [hrAtencion, metadata] = await conn.query("SELECT * FROM horario_atencion WHERE id = 1");
+            [horarios, metadata] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${hrAtencion[0].desde}' AND '${hrAtencion[0].hasta}'`);
             [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
             [eventos, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
 
@@ -59,6 +60,25 @@ const vistaTabla = (req, res) => {
 }
 
 // OPERACIONES CON DATOS
+const horarioEventoSeleccionado = (req, res) => {
+    const { inicio, cierre } = req.params;
+    async function tmp() {
+        try {
+            [horarios] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${inicio}' AND '${cierre}'`);
+            res.status(200);
+            res.header("content-type", "application/json");
+            res.send(JSON.stringify(horarios));
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+
+    tmp();
+
+}
+
 const horariosNoDisponibles = (req, res) => {
     let fechaCita = req.params.fechaCita;
     let estacion = req.params.estacion;
@@ -88,23 +108,6 @@ const actualizarEstatusEstaciones = (req, res) => {
             [rows, metadata] = await conn.query("SELECT * FROM estaciones");
             res.header("content-type", "application/json");
             res.json({ stmt: true });
-            res.end();
-        } catch (error) {
-            res.status(500);
-            res.send(error.name);
-            res.end();
-        }
-    }
-    tmp();
-}
-
-// ??????????????????????
-const eventosActivos = (req, res) => {
-    async function tmp() {
-        try {
-            [rows, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
-            res.header("content-type", "application/json");
-            res.json(rows);
             res.end();
         } catch (error) {
             res.status(500);
@@ -336,11 +339,11 @@ module.exports = {
     consultarRegistros,
     concluirCita,
     horariosNoDisponibles,
-    eventosActivos,
     agregarEvento,
     eliminarEvento,
     agregarEstacion,
     eliminarEstacion,
     actualizarEstatusEstaciones,
-    modificarHorarioAtencion
+    modificarHorarioAtencion,
+    horarioEventoSeleccionado
 }

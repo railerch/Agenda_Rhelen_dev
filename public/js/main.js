@@ -8,32 +8,54 @@ window.onload = () => {
         // LIMPIAR EL SESIONSTORAGE
         sessionStorage.clear();
 
-        /* EVENTOS ACTIVOS
-        fetch(`${server}/eventos-activos`)
-            .then(res => res.json())
-            .then(res => {
-                sessionStorage.setItem("evento", JSON.stringify(res[0]));
-            })
-            .catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
-            */
-
         // SELECCIONAR EVENTO PARA FIJAR LAS FECHAS DE ATENCION
         document.getElementById("evento-list").addEventListener("change", function () {
-            let evento = this.value;
-            let fecIni, fecFin;
-            if (evento == "Sin evento") {
-                fecIni = new Date(Date.now()).toISOString().split("T")[0];
-                console.log(fecIni);
-                fecFin = "2050-01-01";
-            } else {
-                fecIni = this.options[this.selectedIndex].getAttribute("data-fecha-ini");
-                fecFin = this.options[this.selectedIndex].getAttribute("data-fecha-fin");
+            // Habilitar la seleccion de estacion y reiniciar valores
+            {
+                if (this.value == "") {
+                    document.querySelector("select[name=estacion]").setAttribute("disabled", true);
+                } else {
+                    document.querySelector("select[name=estacion]").removeAttribute("disabled");
+                }
+
+                document.querySelector("select[name=estacion]").value = "sinEstacion"
+                document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
+                document.querySelector("input[name=fecha-cita]").value = "";
+                document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
+                document.querySelector("select[name=hora-cita]").innerHTML = "<option value=''>Hora de su cita</option>";
+
+                // Eliminar hora y fecha del dataSet generado
+                dataSet.delete("estacion");
+                dataSet.delete("fecha_cita");
+                dataSet.delete("hora_cita");
             }
 
-            sessionStorage.setItem("evtFecha", JSON.stringify({ evento, fecha_ini: fecIni, fecha_fin: fecFin }));
+            let evento = this.value;
+            let eventoId, fecIni, fecFin, evtInicio, evtCierre;
 
-            // Habilitar la seleccion de estacion
-            document.querySelector("select[name=estacion]").removeAttribute("disabled");
+            eventoId = this.options[this.selectedIndex].getAttribute("data-evt-id");
+            fecIni = this.options[this.selectedIndex].getAttribute("data-fecha-ini");
+            fecFin = this.options[this.selectedIndex].getAttribute("data-fecha-fin");
+            evtInicio = this.options[this.selectedIndex].getAttribute("data-evt-inicio");
+            evtCierre = this.options[this.selectedIndex].getAttribute("data-evt-cierre");
+
+            sessionStorage.setItem("evtFecha", JSON.stringify({ evento, fecIni, fecFin }));
+
+            // Consultar horario de atencion segun el evento seleccionado
+            fetch(`${server}/horario-evento-seleccionado/${evtInicio}/${evtCierre}`)
+                .then(res => res.json())
+                .then(res => {
+                    console.log(res)
+                    let horarioEvento = document.querySelector("select[name=hora-cita]");
+                    horarioEvento.innerHTML = "<option value=''>Hora de su cita</option>";
+                    res.forEach(hr => {
+                        let opt = document.createElement("option");
+                        opt.innerText = hr.hora
+                        opt.value = hr.hora;
+                        opt.style.color = "green";
+                        horarioEvento.append(opt);
+                    })
+                }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
         })
 
         // CAMBIAR IMAGEN / CONSULTAR FECHAS Y HORARIOS DISPONIBLES AL CAMBIAR DE ESTACION
@@ -79,13 +101,14 @@ window.onload = () => {
 
             // Limitar fechas de atencion
             let evento = JSON.parse(sessionStorage.getItem("evtFecha"));
-            let fecInicio = Date.parse(evento.fecha_ini);
-            let fecLimite = Date.parse(evento.fecha_fin);
+            let hoy = Date.parse(new Date().toISOString().split("T")[0]);
+            let fecInicio = Date.parse(evento.fecIni);
+            let fecLimite = Date.parse(evento.fecFin);
             let fecSelec = Date.parse(this.value);
 
-            if (fecSelec < fecInicio || fecSelec > fecLimite) {
-                document.querySelector("#limite-fecha-modal #fecha-ini").innerText = "hoy";
-                document.querySelector("#limite-fecha-modal #fecha-fin").innerText = "sin fecha limite.";
+            if (fecSelec < hoy || fecSelec < fecInicio || fecSelec > fecLimite) {
+                document.querySelector("#limite-fecha-modal #fecha-ini").innerText = evento.fecIni;
+                document.querySelector("#limite-fecha-modal #fecha-fin").innerText = evento.fecFin;
                 $("#limite-fecha-modal").modal("show");
                 this.value = "";
 
@@ -178,9 +201,7 @@ window.onload = () => {
                         break;
                     case "finalizar":
                         // Registrar datos de cita en BD
-                        let dat = JSON.parse(sessionStorage.getItem("datosRegistro"));
-                        dat.evento = sessionStorage.getItem("evtFecha") != "undefined" ? JSON.parse(sessionStorage.getItem("evtFecha")).descripcion : "Sin evento";
-                        let datos = new URLSearchParams(dat).toString();
+                        let datos = new URLSearchParams(JSON.parse(sessionStorage.getItem("datosRegistro"))).toString();
                         fn.preloader();
                         fetch(`${server}/post`, { method: "post", body: datos, headers: { "Content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
                             .then(res => res.json())
