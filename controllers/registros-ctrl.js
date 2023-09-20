@@ -17,12 +17,18 @@ const landingPage = (req, res) => {
 const vistaFormulario = (req, res) => {
     async function tmp() {
         try {
-            [hrAtencion, metadata] = await conn.query("SELECT desde, hasta FROM horario_atencion WHERE id = 1");
-            [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
+            // Actualizar estatus de eventos pasados
+            let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
+            await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
+
+            [hrAtencion, metadata] = await conn.query("SELECT * FROM horario_atencion WHERE id = 1");
             [horarios, metadata] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${hrAtencion[0].desde}' AND '${hrAtencion[0].hasta}'`);
+            [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
+            [eventos, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
+
             res.status(200);
             res.header("content-type", "text/html");
-            res.render("data-entry", { estaciones: estaciones, horarios: horarios, server: data[0].server });
+            res.render("data-entry", { eventos, estaciones, horarios, server: data[0].server });
         } catch (error) {
             res.status(500);
             res.send(error.name);
@@ -54,6 +60,25 @@ const vistaTabla = (req, res) => {
 }
 
 // OPERACIONES CON DATOS
+const horarioEventoSeleccionado = (req, res) => {
+    const { inicio, cierre } = req.params;
+    async function tmp() {
+        try {
+            [horarios] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${inicio}' AND '${cierre}'`);
+            res.status(200);
+            res.header("content-type", "application/json");
+            res.send(JSON.stringify(horarios));
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+
+    tmp();
+
+}
+
 const horariosNoDisponibles = (req, res) => {
     let fechaCita = req.params.fechaCita;
     let estacion = req.params.estacion;
@@ -93,29 +118,13 @@ const actualizarEstatusEstaciones = (req, res) => {
     tmp();
 }
 
-const eventoActivo = (req, res) => {
-    async function tmp() {
-        try {
-            [rows, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
-            res.header("content-type", "application/json");
-            res.json(rows);
-            res.end();
-        } catch (error) {
-            res.status(500);
-            res.send(error.name);
-            res.end();
-        }
-    }
-    tmp();
-}
-
 const agregarEvento = (req, res) => {
     async function tmp() {
         let data = req.body;
         let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
         try {
             // Agregar nuevo evento
-            await conn.query(`INSERT INTO eventos SET id = null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', estatus='En curso'`);
+            await conn.query(`INSERT INTO eventos SET id = null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estatus='En curso'`);
 
             // Actualizar estatus de eventos pasados
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
@@ -175,13 +184,14 @@ const agregarEstacion = (req, res) => {
     tmp();
 }
 
-const horarioAtencion = (req, res) => {
-    let desde = req.body.desde;
-    let hasta = req.body.hasta;
+const modificarHorarioAtencion = (req, res) => {
+    let eventoId = req.body.evento
+    let inicio = req.body.inicio;
+    let cierre = req.body.cierre;
 
     async function tmp() {
         try {
-            await conn.query(`UPDATE horario_atencion SET desde='${desde}', hasta='${hasta}' WHERE id= 1`);
+            await conn.query(`UPDATE eventos SET hora_inicio='${inicio}', hora_cierre='${cierre}' WHERE id='${eventoId}'`);
             res.header("content-type", "application/json");
             res.json({ stmt: true });
             res.end();
@@ -329,11 +339,11 @@ module.exports = {
     consultarRegistros,
     concluirCita,
     horariosNoDisponibles,
-    eventoActivo,
     agregarEvento,
     eliminarEvento,
     agregarEstacion,
     eliminarEstacion,
     actualizarEstatusEstaciones,
-    horarioAtencion
+    modificarHorarioAtencion,
+    horarioEventoSeleccionado
 }
