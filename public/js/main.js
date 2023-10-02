@@ -10,52 +10,58 @@ window.onload = () => {
 
         // SELECCIONAR EVENTO PARA FIJAR LAS FECHAS DE ATENCION
         document.getElementById("evento-list").addEventListener("change", function () {
-            // Habilitar la seleccion de estacion y reiniciar valores
-            {
-                if (this.value == "") {
-                    document.querySelector("select[name=estacion]").setAttribute("disabled", true);
-                } else {
-                    document.querySelector("select[name=estacion]").removeAttribute("disabled");
-                }
+            if (this.value == "") {
+                document.querySelector("select[name=estacion]").setAttribute("disabled", true);
+            } else {
+                document.querySelector("select[name=estacion]").removeAttribute("disabled");
 
-                document.querySelector("select[name=estacion]").value = "sinEstacion"
-                document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
-                document.querySelector("input[name=fecha-cita]").value = "";
-                document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
-                document.querySelector("select[name=hora-cita]").innerHTML = "<option value=''>Hora de su cita</option>";
+                let evento = this.value;
+                let eventoId, fecIni, fecFin, evtInicio, evtCierre;
 
-                // Eliminar hora y fecha del dataSet generado
-                dataSet.delete("estacion");
-                dataSet.delete("fecha_cita");
-                dataSet.delete("hora_cita");
+                eventoId = this.options[this.selectedIndex].getAttribute("data-evt-id");
+                fecIni = this.options[this.selectedIndex].getAttribute("data-fecha-ini");
+                fecFin = this.options[this.selectedIndex].getAttribute("data-fecha-fin");
+                evtInicio = this.options[this.selectedIndex].getAttribute("data-evt-inicio");
+                evtCierre = this.options[this.selectedIndex].getAttribute("data-evt-cierre");
+
+                sessionStorage.setItem("evtFecha", JSON.stringify({ evento, fecIni, fecFin }));
+
+                // Consultar horario y estaciones de atencion segun el evento seleccionado
+                fetch(`${server}/estaciones-horario-evento-seleccionado/${eventoId}/${evtInicio}/${evtCierre}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        // Estaciones
+                        let estacionesEvento = document.querySelector("select[name=estacion]");
+                        estacionesEvento.innerHTML = "<option value=''>Seleccionar estación</option>";
+                        res.estaciones.forEach(est => {
+                            let opt = document.createElement("option");
+                            opt.innerText = est.descripcion;
+                            opt.value = est.descripcion;
+                            estacionesEvento.append(opt);
+                        })
+
+                        // Horario
+                        let horarioEvento = document.querySelector("select[name=hora-cita]");
+                        horarioEvento.innerHTML = "<option value=''>Hora de su cita</option>";
+                        res.horario.forEach(hr => {
+                            let opt = document.createElement("option");
+                            opt.innerText = hr.hora
+                            opt.value = hr.hora;
+                            opt.style.color = "green";
+                            horarioEvento.append(opt);
+                        })
+
+
+                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
             }
 
-            let evento = this.value;
-            let eventoId, fecIni, fecFin, evtInicio, evtCierre;
-
-            eventoId = this.options[this.selectedIndex].getAttribute("data-evt-id");
-            fecIni = this.options[this.selectedIndex].getAttribute("data-fecha-ini");
-            fecFin = this.options[this.selectedIndex].getAttribute("data-fecha-fin");
-            evtInicio = this.options[this.selectedIndex].getAttribute("data-evt-inicio");
-            evtCierre = this.options[this.selectedIndex].getAttribute("data-evt-cierre");
-
-            sessionStorage.setItem("evtFecha", JSON.stringify({ evento, fecIni, fecFin }));
-
-            // Consultar horario de atencion segun el evento seleccionado
-            fetch(`${server}/horario-evento-seleccionado/${evtInicio}/${evtCierre}`)
-                .then(res => res.json())
-                .then(res => {
-                    console.log(res)
-                    let horarioEvento = document.querySelector("select[name=hora-cita]");
-                    horarioEvento.innerHTML = "<option value=''>Hora de su cita</option>";
-                    res.forEach(hr => {
-                        let opt = document.createElement("option");
-                        opt.innerText = hr.hora
-                        opt.value = hr.hora;
-                        opt.style.color = "green";
-                        horarioEvento.append(opt);
-                    })
-                }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+            // Reiniciar valores
+            dataSet.clear();
+            document.querySelector("select[name=estacion]").value = "sinEstacion"
+            document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
+            document.querySelector("input[name=fecha-cita]").value = "";
+            document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
+            document.querySelector("select[name=hora-cita]").innerHTML = "<option value=''>Hora de su cita</option>";
         })
 
         // CAMBIAR IMAGEN / CONSULTAR FECHAS Y HORARIOS DISPONIBLES AL CAMBIAR DE ESTACION
@@ -101,7 +107,10 @@ window.onload = () => {
 
             // Limitar fechas de atencion
             let evento = JSON.parse(sessionStorage.getItem("evtFecha"));
-            let hoy = Date.parse(new Date().toISOString().split("T")[0]);
+            let tmp = new Date().toLocaleString().split(",")[0].split("/");
+            let mm = tmp[1] >= 10 ? tmp[1] : `0${tmp[1]}`;
+            let dd = tmp[0] >= 10 ? tmp[0] : `0${tmp[0]}`;
+            let hoy = Date.parse(`${tmp[2]}-${mm}-${dd}`);
             let fecInicio = Date.parse(evento.fecIni);
             let fecLimite = Date.parse(evento.fecFin);
             let fecSelec = Date.parse(this.value);
@@ -136,7 +145,6 @@ window.onload = () => {
                 fetch(`${server}/horarios/${this.value}/${estacion.value}`)
                     .then(res => res.json())
                     .then(res => {
-                        console.log(res);
                         // Obtener horarios no disponibles
                         let hrNoDisp = [];
                         res.forEach(hr => {
@@ -329,7 +337,6 @@ window.onload = () => {
                 fetch(`${server}/concluir-cita/${rengId}/${cedula}`)
                     .then(res => res.json())
                     .then(res => {
-                        console.log(res);
                         if (res.stmt) {
                             setTimeout(() => {
                                 fn.preloader(false);
@@ -404,13 +411,13 @@ window.onload = () => {
         })
 
         // Modificar horario de atencion
-        document.getElementById("horario-atencion-frm").addEventListener("submit", function (evt) {
+        document.getElementById("horario-estaciones-frm").addEventListener("submit", function (evt) {
             evt.preventDefault();
 
-            let body = new URLSearchParams(new FormData(document.getElementById("horario-atencion-frm"))).toString();
+            let body = new URLSearchParams(new FormData(document.getElementById("horario-estaciones-frm"))).toString();
             console.log(body);
 
-            fetch(`${server}/modificar-horario-atencion`, { method: "post", body, headers: { "content-type": "application/x-www-form-urlencoded" } })
+            fetch(`${server}/actualizar-horarios-y-estaciones-evt`, { method: "post", body, headers: { "content-type": "application/x-www-form-urlencoded" } })
                 .then(res => res.json())
                 .then(res => {
                     $("#exito-modal").modal("show");
@@ -422,35 +429,6 @@ window.onload = () => {
                     $("#error-modal").modal("show");
                     console.log("HA OCURRIDO UN ERROR: " + err)
                 })
-        })
-
-        // Actualizar estatus de registros con checkbox
-        document.querySelectorAll(".estatus-chk").forEach(chk => {
-            chk.addEventListener("click", function () {
-                let tipo = this.getAttribute("data-tipo");
-                let id = this.getAttribute("data-id");
-                let estatus = this.checked ? "activo" : "inactivo";
-                let ruta;
-
-                // Determinar el tipo de dato
-                switch (tipo) {
-                    case "estaciones":
-                        ruta = "actualizar-estatus-estaciones";
-                        break;
-                }
-
-                // Actualizar estatus del registro seleccionado
-                fetch(`${server}/${ruta}/${estatus}/${id}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        console.log("Estaci´on deshabilitada correctamente.");
-                        // $("#exito-modal").modal("show");
-                    })
-                    .catch(err => {
-                        $("#error-modal").modal("show");
-                        console.log("HA OCURRIDO UN ERROR: " + err)
-                    })
-            })
         })
 
         // Eliminar registros
@@ -473,6 +451,9 @@ window.onload = () => {
                     break;
                 case "estaciones":
                     ruta = "eliminar-estacion";
+                    break;
+                case "cita":
+                    ruta = "eliminar-cita";
                     break;
             }
 
@@ -539,6 +520,10 @@ window.onload = () => {
                     visible: false
                 },
                 {
+                    target: 1,
+                    visible: false
+                },
+                {
                     target: 4,
                     visible: false
                 },
@@ -552,6 +537,14 @@ window.onload = () => {
                 },
                 {
                     target: 7,
+                    visible: false
+                },
+                {
+                    target: 9,
+                    visible: false
+                },
+                {
+                    target: 10,
                     visible: false
                 },
                 {

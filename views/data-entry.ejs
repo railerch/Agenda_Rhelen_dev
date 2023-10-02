@@ -32,10 +32,10 @@
                     <i class="bi bi-calendar me-2"></i> 1. Reserva</span>
             </div>
             <div class="col-3 paso" data-paso="2" style="visibility: hidden;">
-                <i class="bi bi-person-lines-fill me-2"></i> 2. Datos de registro
+                <i class="bi bi-person-lines-fill me-2"></i> 2. Registro
             </div>
             <div class="col-3 paso" data-paso="3" style="visibility: hidden;">
-                <i class="bi bi-check-lg me-2"></i> 3. Validar datos
+                <i class="bi bi-check-lg me-2"></i> 3. Confirmación
             </div>
             <div class="col-3 paso" data-paso="4" style="visibility: hidden;">
                 <i class="bi bi-hand-thumbs-up me-2"></i> 4. Fin del registro
@@ -51,8 +51,9 @@
 
             <!-- PANTALLA 01 -->
             <div class="pantalla" data-screen="1" style="display:none">
-                <h3><i class="bi bi-calendar"></i> Indique estación, fecha y hora de su cita</h3>
-                <span>Seleccione a continuación la hora y fecha que mas se ajusten a su conveniencia y haga clic
+                <h3><i class="bi bi-calendar"></i> Reservar fecha</h3>
+                <span>Seleccione a continuación el evento, la estación, la hora y fecha que mas se ajusten a su
+                    conveniencia y haga clic
                     en
                     siguiente.</span>
 
@@ -67,7 +68,8 @@
                                 <% eventos.forEach( evt=> { %>
                                     <option value='<%= evt.descripcion %>' data-evt-id='<%= evt.id %>'
                                         data-fecha-ini='<%= evt.fecha_ini %>' data-fecha-fin='<%= evt.fecha_fin %>'
-                                        data-evt-inicio='<%= evt.hora_inicio %>' data-evt-cierre='<%= evt.hora_cierre %>'>
+                                        data-evt-inicio='<%= evt.hora_inicio %>'
+                                        data-evt-cierre='<%= evt.hora_cierre %>'>
                                         <%= evt.descripcion %>
                                     </option>
                                     <% }) %>
@@ -79,11 +81,6 @@
                             <div class="input-group-text col-4 col-md-2">Estación</div>
                             <select name="estacion" class="form-select" disabled>
                                 <option value="sinEstacion" selected>Seleccionar estación</option>
-                                <% estaciones.forEach( est=> { %>
-                                    <option value='<%= est.descripcion %>'>
-                                        <%= est.descripcion %>
-                                    </option>
-                                    <% }) %>
                             </select>
                         </div>
 
@@ -227,7 +224,7 @@
 
             <!-- PANTALLA 03 -->
             <div class="pantalla" data-screen="3" style="display:none">
-                <h3><i class="bi bi-check-lg"></i> Validar datos</h3>
+                <h3><i class="bi bi-check-lg"></i> Confirmar datos</h3>
                 <span>Por favor confirme que los datos suministrados son correctos y luego haga clic en
                     <b>Finalizar</b>, en caso contrario pulse <b>Atras</b> y realice las correcciones necesarias para
                     completar su registro.</span>

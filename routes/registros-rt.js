@@ -15,18 +15,18 @@ const storage = MULTER.diskStorage({
 const UPLOAD = MULTER({ storage: storage })
 
 ROUTER.get("/", CTRL.landingPage);
-ROUTER.get("/dataentry", CTRL.vistaFormulario);
-ROUTER.get("/dataquery", CTRL.vistaTabla);
+ROUTER.get("/dataentry", CTRL.dataEntry);
+ROUTER.get("/dataquery", CTRL.dataQuery);
 ROUTER.post("/agregar-evento", CTRL.agregarEvento);
 ROUTER.get("/eliminar-evento/:id", CTRL.eliminarEvento);
-ROUTER.get("/actualizar-estatus-estaciones/:st/:id", CTRL.actualizarEstatusEstaciones);
 ROUTER.post("/agregar-estacion", UPLOAD.single("imagen"), CTRL.agregarEstacion);
-ROUTER.post("/modificar-horario-atencion", CTRL.modificarHorarioAtencion);
-ROUTER.get("/horario-evento-seleccionado/:inicio/:cierre", CTRL.horarioEventoSeleccionado);
+ROUTER.post("/actualizar-horarios-y-estaciones-evt", CTRL.actualizarHorariosYestacionesDelEvt);
+ROUTER.get("/estaciones-horario-evento-seleccionado/:id/:inicio/:cierre", CTRL.estacionesHorarioEventoSeleccionado);
 ROUTER.get("/eliminar-estacion/:id", CTRL.eliminarEstacion);
 ROUTER.get("/concluir-cita/:id/:cedula", CTRL.concluirCita);
 ROUTER.get("/horarios/:fechaCita/:estacion", CTRL.horariosNoDisponibles);
 ROUTER.get("/get", CTRL.consultarRegistros);
 ROUTER.post("/post", CTRL.insertarRegistro);
+ROUTER.get("/eliminar-cita/:id", CTRL.eliminarRegistro);
 
 module.exports = ROUTER;
