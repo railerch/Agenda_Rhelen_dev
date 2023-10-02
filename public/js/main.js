@@ -58,6 +58,7 @@ window.onload = () => {
             // Reiniciar valores
             dataSet.clear();
             document.querySelector("select[name=estacion]").value = "sinEstacion"
+            document.querySelector("select[name=estacion]").innerHTML = "<option value=''>Seleccionar estación</option>";
             document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
             document.querySelector("input[name=fecha-cita]").value = "";
             document.querySelector("select[name=hora-cita]").setAttribute("disabled", true);
