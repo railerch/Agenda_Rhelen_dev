@@ -5,8 +5,6 @@ const URL = require("url");
 const FS = require("fs");
 data = JSON.parse(FS.readFileSync("./config/config.json", "utf8"));
 
-// MIDD
-
 // VISTAS
 const landingPage = (req, res) => {
     res.status(200);
@@ -14,21 +12,18 @@ const landingPage = (req, res) => {
     res.render("index", { server: data[0].server });
 }
 
-const vistaFormulario = (req, res) => {
+const dataEntry = (req, res) => {
     async function tmp() {
         try {
             // Actualizar estatus de eventos pasados
             let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
 
-            [hrAtencion, metadata] = await conn.query("SELECT * FROM horario_atencion WHERE id = 1");
-            [horarios, metadata] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${hrAtencion[0].desde}' AND '${hrAtencion[0].hasta}'`);
-            [estaciones, metadata] = await conn.query("SELECT * FROM estaciones WHERE estatus = 'activo'");
             [eventos, metadata] = await conn.query("SELECT * FROM eventos WHERE estatus = 'En curso'");
 
             res.status(200);
             res.header("content-type", "text/html");
-            res.render("data-entry", { eventos, estaciones, horarios, server: data[0].server });
+            res.render("data-entry", { eventos, server: data[0].server });
         } catch (error) {
             res.status(500);
             res.send(error.name);
@@ -40,7 +35,7 @@ const vistaFormulario = (req, res) => {
 
 }
 
-const vistaTabla = (req, res) => {
+const dataQuery = (req, res) => {
     async function tmp() {
         try {
             [agenda, metadata] = await conn.query("SELECT * FROM agenda");
@@ -60,14 +55,34 @@ const vistaTabla = (req, res) => {
 }
 
 // OPERACIONES CON DATOS
-const horarioEventoSeleccionado = (req, res) => {
-    const { inicio, cierre } = req.params;
+const estacionesHorarioEventoSeleccionado = (req, res) => {
+    const { id, inicio, cierre } = req.params;
     async function tmp() {
         try {
-            [horarios] = await conn.query(`SELECT * FROM horarios WHERE estatus = 'activo' AND hora BETWEEN '${inicio}' AND '${cierre}'`);
-            res.status(200);
-            res.header("content-type", "application/json");
-            res.send(JSON.stringify(horarios));
+            // Estaciones
+            const [col] = await conn.query(`SELECT estaciones FROM eventos WHERE id = '${id}'`);
+            let idArr = col[0].estaciones.split(",");
+
+            const estacion = new Promise((ok, fail) => {
+                let estaciones = [];
+                idArr.forEach(async id => {
+                    let [rows] = await conn.query(`SELECT * FROM estaciones WHERE id = ${id}`);
+                    estaciones.push(rows[0]);
+                    if (estaciones.length === idArr.length) {
+                        ok(estaciones);
+                    }
+                });
+            })
+
+            // Horarios
+            const [horario] = await conn.query(`SELECT * FROM horarios WHERE hora BETWEEN '${inicio}' AND '${cierre}'`);
+
+            // Enviar datos
+            estacion.then(estaciones => {
+                res.status(200);
+                res.header("content-type", "application/json");
+                res.send(JSON.stringify({ estaciones, horario }));
+            })
         } catch (error) {
             res.status(500);
             res.send(error.name);
@@ -98,33 +113,13 @@ const horariosNoDisponibles = (req, res) => {
     tmp();
 }
 
-const actualizarEstatusEstaciones = (req, res) => {
-    let estatus = req.params.st;
-    let id = req.params.id;
-
-    async function tmp() {
-        try {
-            await conn.query(`UPDATE estaciones SET estatus='${estatus}' WHERE id = '${id}'`);
-            [rows, metadata] = await conn.query("SELECT * FROM estaciones");
-            res.header("content-type", "application/json");
-            res.json({ stmt: true });
-            res.end();
-        } catch (error) {
-            res.status(500);
-            res.send(error.name);
-            res.end();
-        }
-    }
-    tmp();
-}
-
 const agregarEvento = (req, res) => {
     async function tmp() {
         let data = req.body;
         let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
         try {
             // Agregar nuevo evento
-            await conn.query(`INSERT INTO eventos SET id = null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estatus='En curso'`);
+            await conn.query(`INSERT INTO eventos SET id=null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estaciones=null, estatus='En curso'`);
 
             // Actualizar estatus de eventos pasados
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
@@ -170,7 +165,7 @@ const agregarEstacion = (req, res) => {
 
     async function tmp() {
         try {
-            await conn.query(`INSERT INTO estaciones SET id = 'NULL', descripcion='${estacion}', estatus='activo'`);
+            await conn.query(`INSERT INTO estaciones SET id = 'NULL', descripcion='${estacion}'`);
             [rows, metadata] = await conn.query("SELECT * FROM estaciones");
             res.header("content-type", "application/json");
             res.json(rows);
@@ -184,14 +179,15 @@ const agregarEstacion = (req, res) => {
     tmp();
 }
 
-const modificarHorarioAtencion = (req, res) => {
-    let eventoId = req.body.evento
-    let inicio = req.body.inicio;
-    let cierre = req.body.cierre;
+const actualizarHorariosYestacionesDelEvt = (req, res) => {
+    let eventoId = req.body.evento;
+    let inicio = req.body.inicio ? `'${req.body.inicio}'` : 'hora_inicio';
+    let cierre = req.body.cierre ? `'${req.body.cierre}'` : 'hora_cierre';
+    let estaciones = req.body.estaciones ? `'${req.body.estaciones}'` : 'estaciones';
 
     async function tmp() {
         try {
-            await conn.query(`UPDATE eventos SET hora_inicio='${inicio}', hora_cierre='${cierre}' WHERE id='${eventoId}'`);
+            await conn.query(`UPDATE eventos SET hora_inicio=${inicio}, hora_cierre=${cierre}, estaciones=${estaciones} WHERE id='${eventoId}'`);
             res.header("content-type", "application/json");
             res.json({ stmt: true });
             res.end();
@@ -292,6 +288,27 @@ const insertarRegistro = (req, res) => {
         });
 }
 
+const eliminarRegistro = (req, res) => {
+    const id = req.params.id;
+    async function tmp() {
+        try {
+            await conn.query(`DELETE FROM agenda WHERE id = ${id}`);
+
+            res.header("content-type", "application/json");
+            res.json({ stmt: true });
+            res.end();
+
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+
+    tmp();
+
+}
+
 const concluirCita = (req, res) => {
     async function finalizarCita() {
         try {
@@ -333,9 +350,9 @@ const concluirCita = (req, res) => {
 
 module.exports = {
     landingPage,
-    vistaFormulario,
+    dataEntry,
     insertarRegistro,
-    vistaTabla,
+    dataQuery,
     consultarRegistros,
     concluirCita,
     horariosNoDisponibles,
@@ -343,7 +360,7 @@ module.exports = {
     eliminarEvento,
     agregarEstacion,
     eliminarEstacion,
-    actualizarEstatusEstaciones,
-    modificarHorarioAtencion,
-    horarioEventoSeleccionado
+    actualizarHorariosYestacionesDelEvt,
+    estacionesHorarioEventoSeleccionado,
+    eliminarRegistro
 }

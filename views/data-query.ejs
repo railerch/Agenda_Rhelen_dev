@@ -61,6 +61,7 @@
                                     <th>Fecha Fin.</th>
                                     <th>Inicio</th>
                                     <th>Cierre</th>
+                                    <th>Estaciones</th>
                                     <th class="text-center">Estatus</th>
                                     <th class="text-center">Acc</th>
                                 </tr>
@@ -72,7 +73,7 @@
                                             <td>
                                                 <%= evt[col] %>
                                             </td>
-                                            <%} %>
+                                            <% }%>
                                                 <td class="text-center">
                                                     <button data-id="<%= evt['id']%>" data-tipo="eventos"
                                                         class="btn btn-outline-danger btn-sm eliminar-btn"
@@ -152,7 +153,7 @@
                         </div>
                     </div>
 
-                    <!-- Modificar horario de atencion -->
+                    <!-- Horario y estaciones segun el evento -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading1">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse"
@@ -164,9 +165,9 @@
                         <div id="horarios-acc" class="accordion-collapse collapse" aria-labelledby="headinghorarios-acc"
                             data-bs-parent="#accordionEventos">
                             <div class="accordion-body">
-                                <form id="horario-atencion-frm">
+                                <form id="horario-estaciones-frm">
                                     <!-- Evento -->
-                                    <div class="input-group">
+                                    <div class="input-group mb-2">
                                         <label class="input-group-text" for="evento">Evento</label>
                                         <select class="form-select" name="evento">
                                             <option value="" selected>Seleccione</option>
@@ -179,7 +180,7 @@
                                     </div>
 
                                     <!-- Horario -->
-                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 mb-2">
                                         <div class="input-group">
                                             <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
                                             <select class="form-select" name="inicio">
@@ -201,6 +202,34 @@
                                                     </option>
                                                     <%})%>
                                             </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estaciones -->
+                                    <div class="accordion mb-2" id="estaciones-evt">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingOne">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseOne" aria-expanded="true"
+                                                    aria-controls="collapseOne">
+                                                    Estaciones para el evento
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOne" class="accordion-collapse collapse"
+                                                aria-labelledby="headingOne" data-bs-parent="#estaciones-evt">
+                                                <div class="accordion-body">
+                                                    <% estaciones.forEach(est=> { %>
+                                                        <div class="">
+                                                            <input class="estacion-chk" type="checkbox"
+                                                                name="estaciones" value="<%= est.id %>">
+                                                            <label for="estacion">
+                                                                <%= est.id %>
+                                                                    <%= est.descripcion%>
+                                                            </label>
+                                                        </div>
+                                                        <% })%>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -228,38 +257,24 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Estación</th>
-                                    <th class="text-center">Activo</th>
                                     <th class="text-center">Acc</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% estaciones.forEach(est=>{ %>
                                     <tr id="reg-<%= est.id%>">
-                                        <% for(let col in est) { if(col==="estatus" ) { if(est[col]=="activo" ) { %>
-                                            <td class="text-center">
-                                                <input class="form-check-input estatus-chk" type="checkbox" value=""
-                                                    data-id="<%= est['id']%>" data-tipo="estaciones" checked>
+                                        <% for(let col in est) { %>
+                                            <td>
+                                                <%= est[col] %>
                                             </td>
-                                            <% } else {%>
+                                            <% } %>
                                                 <td class="text-center">
-                                                    <input class="form-check-input estatus-chk" data-tipo="estaciones"
-                                                        data-id="<%= est['id']%>" type="checkbox" value="">
+                                                    <button data-id="<%= est['id']%>" data-tipo="estaciones"
+                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                        title="Eliminar" data-bs-toggle="modal"
+                                                        data-bs-target="#confirmar-eliminacion-modal"><i
+                                                            class="bi bi-trash"></i></button>
                                                 </td>
-                                                <% }%>
-                                                    <%} else{ %>
-                                                        <td>
-                                                            <%= est[col] %>
-                                                        </td>
-                                                        <% } %>
-                                                            <% } %>
-                                                                <td class="text-center">
-                                                                    <button data-id="<%= est['id']%>"
-                                                                        data-tipo="estaciones"
-                                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
-                                                                        title="Eliminar" data-bs-toggle="modal"
-                                                                        data-bs-target="#confirmar-eliminacion-modal"><i
-                                                                            class="bi bi-trash"></i></button>
-                                                                </td>
                                     </tr>
                                     <% }) %>
                             </tbody>
@@ -327,6 +342,7 @@
                         <th>Fecha cita</th>
                         <th>Hora cita</th>
                         <th>Concluida</th>
+                        <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -348,6 +364,12 @@
                                             <%= reg[col] %>
                                         </td>
                                         <%} }%>
+                                            <td class="text-center">
+                                                <i class="btn btn-outline-danger bi bi-trash  btn-sm eliminar-btn"
+                                                    data-id="<%= reg['id'] %>" data-tipo="cita" data-bs-toggle="modal"
+                                                    data-bs-target="#confirmar-eliminacion-modal"
+                                                    alt="Eliminar cita"></i>
+                                            </td>
                         </tr>
                         <% }) %>
                 </tbody>
