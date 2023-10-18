@@ -102,6 +102,7 @@ window.onload = () => {
 
         // CONSULTAR HORARIOS DISPONIBLES AL CAMBIAR LA FECHA LA CUAL DEBE ESTAR EN EL RANGO DE FECHA DEL EVENTO
         document.querySelector("input[name=fecha-cita]").addEventListener("change", function () {
+            let evt = document.querySelector("select[name=evento]");
             let estacion = document.querySelector("select[name=estacion]");
             let horaCita = document.querySelector("select[name=hora-cita]");
             let horaCitaOpt = document.querySelectorAll("select[name=hora-cita] option");
@@ -143,21 +144,32 @@ window.onload = () => {
                 dataSet.delete("hora_cita");
 
                 // Consultar horarios disponibles segun la fecha
-                fetch(`${server}/horarios/${this.value}/${estacion.value}`)
+                fetch(`${server}/horarios-no-disponibles/${evt.value}/${this.value}/${estacion.value}`)
                     .then(res => res.json())
                     .then(res => {
-                        // Obtener horarios no disponibles
-                        let hrNoDisp = [];
-                        res.forEach(hr => {
-                            hrNoDisp.push(hr.hora_no_disponible);
-                        })
-
                         // Deshabilitar horarios no disponibles en selector de hora_cita
                         for (let opt of horaCitaOpt) {
-                            hrNoDisp.forEach(hr => {
-                                if (hr.includes(opt.value) && opt.value != "") {
+                            res.forEach(hr => {
+                                if (hr.hora_no_disponible == opt.value) {
                                     opt.setAttribute("disabled", true);
                                     opt.style.color = "red";
+                                }
+                            })
+                        };
+
+                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+
+                // Consultar hora de descanso
+                fetch(`${server}/consultar-descanso/${evt.value}/${estacion.value}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        // Deshabilitar hora y marcar con un color diferente a los 
+                        // horarios no disponibles
+                        for (let opt of horaCitaOpt) {
+                            res.forEach(descanso => {
+                                if (descanso.hora == opt.value) {
+                                    opt.setAttribute("disabled", true);
+                                    opt.style.color = "blue";
                                 }
                             })
                         };
@@ -356,10 +368,9 @@ window.onload = () => {
         document.getElementById("nuevo-evento-frm").addEventListener("submit", function (evt) {
             evt.preventDefault();
             let procesar = true;
-            let inputs = Array.from(this.elements);
 
             // Validar que los campos no esten vacios
-            inputs.forEach(el => {
+            Array.from(this.elements).forEach(el => {
                 if (el.nodeName != "BUTTON" && el.value == "") {
                     procesar = false;
                 }
@@ -398,6 +409,80 @@ window.onload = () => {
                     .then(res => {
                         $("#exito-modal").modal("show");
                         document.getElementById("nueva-estacion-frm").reset();
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1500)
+                    })
+                    .catch(err => {
+                        $("#error-modal").modal("show");
+                        console.log("HA OCURRIDO UN ERROR: " + err)
+                    })
+            } else {
+                $("#campos-vacios-modal").modal("show");
+            }
+        })
+
+        // Consultar estaciones y horarios segun el evento
+        document.getElementById("descanso-eventos").addEventListener("change", function () {
+            let estacionesEvento = document.getElementById("descanso-estaciones");
+            let horarioEvento = document.getElementById("descanso-horario");
+            let evtId = this.options[this.selectedIndex].getAttribute("data-evt-id");
+            let horaIni = this.options[this.selectedIndex].getAttribute("data-hora-ini");
+            let horaFin = this.options[this.selectedIndex].getAttribute("data-hora-fin");
+
+            if (this.value == "") {
+                estacionesEvento.value = "";
+                estacionesEvento.setAttribute("disabled", true);
+                horarioEvento.value = "";
+                horarioEvento.setAttribute("disabled", true);
+            } else {
+                estacionesEvento.removeAttribute("disabled");
+                horarioEvento.removeAttribute("disabled");
+
+                // Consultar horario y estaciones de atencion segun el evento seleccionado
+                fetch(`${server}/estaciones-horario-evento-seleccionado/${evtId}/${horaIni}/${horaFin}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        // Estaciones
+                        estacionesEvento.innerHTML = "<option value=''>Seleccionar</option>";
+                        res.estaciones.forEach(est => {
+                            let opt = document.createElement("option");
+                            opt.innerText = est.descripcion;
+                            opt.value = est.descripcion;
+                            estacionesEvento.append(opt);
+                        })
+
+                        // Horario
+                        horarioEvento.innerHTML = "<option value=''>Seleccionar</option>";
+                        res.horario.forEach(hr => {
+                            let opt = document.createElement("option");
+                            opt.innerText = hr.hora
+                            opt.value = hr.hora;
+                            horarioEvento.append(opt);
+                        })
+
+                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+            }
+        })
+
+        // Asignar descanso a estaciones
+        document.getElementById("nuevo-descanso-frm").addEventListener("submit", function (evt) {
+            evt.preventDefault();
+            let enviar = true;
+
+            // Validar que los campos no esten vacios
+            Array.from(this.elements).forEach(node => {
+                if (node.nodeName == "SELECT" && node.value == "") enviar = false
+            });
+
+            if (enviar) {
+                let data = new URLSearchParams(new FormData(this)).toString();
+
+                fetch(`${server}/agregar-descanso`, { method: "post", body: data, headers: { "content-type": "application/x-www-form-urlencoded;charset=UTF-8" } })
+                    .then(res => res.json())
+                    .then(res => {
+                        $("#exito-modal").modal("show");
+                        document.getElementById("nuevo-descanso-frm").reset();
                         setTimeout(function () {
                             window.location.reload();
                         }, 1500)
@@ -453,6 +538,9 @@ window.onload = () => {
                 case "estaciones":
                     ruta = "eliminar-estacion";
                     break;
+                case "descansos":
+                    ruta = "eliminar-descanso";
+                    break;
                 case "cita":
                     ruta = "eliminar-cita";
                     break;
@@ -473,8 +561,24 @@ window.onload = () => {
                 })
         })
 
+        // Alinear cabeceras de tablas al activar el contenedor del acordeon
+
+        /*
+        CITA:
+        It isn't a bug, but rather happens because the table is initialised when it is hidden. 
+        As a result of that the elements inside the hidden container have no height or width 
+        and therefore no responsive calculations are possible.What needs to happen is to call 
+        columns.adjust() when the table is made visible.
+        
+        */
+        document.querySelectorAll(".accordion-header").forEach(btn => {
+            btn.addEventListener("click", function () {
+                $($.fn.dataTable.tables(true)).DataTable().columns.adjust()
+            })
+        })
+
         // Inicializar tablas
-        let tablas = ["#eventos-tbl", "#estaciones-tbl"];
+        let tablas = ["#eventos-tbl", "#estaciones-tbl", "#descansos-tbl"];
         tablas.forEach(tbl => {
             new DataTable(`${tbl}`, {
                 fixedHeader: true,

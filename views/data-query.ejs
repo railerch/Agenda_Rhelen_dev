@@ -38,343 +38,535 @@
 <body>
     <!-- CMS -->
     <div id="container-dataquery">
-        <div class="alert alert-secondary text-end p-2" role="alert">
-            <button id="cerrar-sesion-btn" class="btn btn-outline-primary"><i class="bi bi-box-arrow-right"></i> Cerrar
-                sesion</button>
+        <div class="alert alert-secondary p-2" role="alert">
+            <div class="d-flex align-items-center d-grid gap-2">
+                <img src="img/favicon.png" alt="" style="height:80px">
+                <div>
+                    <h2>Gestion de eventos Rhelen/Arnica</h2>
+                    <a id="cerrar-sesion-btn" class="m-0" href="#" style="text-decoration: none; color: #5c108c;">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Cerrar sesion
+                    </a>
+                </div>
+            </div>
+
         </div>
 
-        <!-- EVENTOS & ESTACIONES -->
-        <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-4 mb-5 mb-lg-4">
-            <!-- EVENTOS -->
-            <div class="col-12 col-md-8 border rounded-3 shadow p-3" style="background-color: snow;">
-                <!-- Tabla de eventos -->
-                <div class="mb-3">
-                    <h2 class="text-muted"><i class="bi bi-trophy"></i> Eventos</h2>
-                    <hr>
-                    <div class="table-responsive mb-2">
-                        <table id="eventos-tbl" class="table table-hover evt-est">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Descripción</th>
-                                    <th>Fecha Ini.</th>
-                                    <th>Fecha Fin.</th>
-                                    <th>Inicio</th>
-                                    <th>Cierre</th>
-                                    <th>Estaciones</th>
-                                    <th class="text-center">Estatus</th>
-                                    <th class="text-center">Acc</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% eventos.forEach(evt=>{ %>
-                                    <tr id="reg-<%= evt.id%>">
-                                        <% for(let col in evt) { %>
-                                            <td>
-                                                <%= evt[col] %>
-                                            </td>
-                                            <% }%>
-                                                <td class="text-center">
-                                                    <button data-id="<%= evt['id']%>" data-tipo="eventos"
-                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
-                                                        title="Eliminar" data-bs-toggle="modal"
-                                                        data-bs-target="#confirmar-eliminacion-modal"><i
-                                                            class="bi bi-trash"></i></button>
-                                                </td>
-                                    </tr>
-                                    <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="accordion mb-3" id="accordionGestion">
+            <!-- ESTACIONES -->
+            <div class="accordion-item">
+                <div class="accordion-header" id="estaciones-div-btn">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#estaciones-div" aria-expanded="true" aria-controls="estaciones-div">
+                        <h3><i class="bi bi-clipboard2-pulse"></i> Estaciones</h3>
+                    </button>
                 </div>
 
-                <!-- Gestion de eventos -->
-                <div class="accordion" id="accordionEventos">
-                    <!-- Agregar nuevo evento -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading2">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#eventos-acc" aria-expanded="true" aria-controls="eventos-acc">
-                                <b>Nuevo evento</b>
-                            </button>
-                        </h2>
-                        <div id="eventos-acc" class="accordion-collapse collapse" aria-labelledby="headingeventos-acc"
-                            data-bs-parent="#accordionEventos">
-                            <div class="accordion-body">
-                                <form id="nuevo-evento-frm">
-                                    <!-- Evento -->
-                                    <input type="text" class="form-control" name="evtdesc"
-                                        placeholder="Nombre del evento">
+                <div id="estaciones-div" class="accordion-collapse collapse" aria-labelledby="estaciones-div-btn"
+                    data-bs-parent="#accordionGestion">
+                    <div class="accordion-body">
+                        <!-- Tabla de estaciones -->
+                        <div class="mb-3">
+                            <div class="table-responsive mb-2">
+                                <table id="estaciones-tbl" class="table table-hover evt-est" style="width:100%">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Estación</th>
+                                            <th class="text-center">Acc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% estaciones.forEach(est=>{ %>
+                                            <tr id="reg-<%= est.id%>">
+                                                <% for(let col in est) { %>
+                                                    <td>
+                                                        <%= est[col] %>
+                                                    </td>
+                                                    <% } %>
+                                                        <td class="text-center">
+                                                            <button data-id="<%= est['id']%>" data-tipo="estaciones"
+                                                                class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                                title="Eliminar" data-bs-toggle="modal"
+                                                                data-bs-target="#confirmar-eliminacion-modal"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                                    <!-- Fecha -->
-                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtfecini">Desde</label>
-                                            <input type="date" class="form-control" name="evtfecini">
-                                        </div>
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtfecfin">Hasta</label>
-                                            <input type="date" class="form-control" name="evtfecfin">
-                                        </div>
-                                    </div>
+                        <!-- Gestion de estaciones -->
+                        <div class="accordion" id="accordionEstaciones">
+                            <!-- Agregar estacion -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading1">
+                                    <button class="accordion-button sub" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#estaciones-acc" aria-expanded="true"
+                                        aria-controls="estaciones-acc">
+                                        <b>Nueva estación</b>
+                                    </button>
+                                </h2>
 
-                                    <!-- Horario -->
-                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
-                                            <select class="form-select" name="inicio">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
-                                            <select class="form-select" name="cierre">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div id="estaciones-acc" class="accordion-collapse collapse"
+                                    aria-labelledby="headingestaciones-acc" data-bs-parent="#accordionEstaciones">
+                                    <div class="accordion-body sub">
+                                        <form id="nueva-estacion-frm" class="d-grid gap-2 mt-2">
+                                            <input type="text" id="estacion-descripcion" class="form-control"
+                                                name="estacion" placeholder="Nombre de la estación">
+                                            <input type="file" id="estacion-img" class="form-control" name="imagen"
+                                                accept=".jpg, .jpeg">
+                                            <small class="text-muted">Imagen de estación: formato jpg 1000x500
+                                                px</small>
 
-                                    <div class="col-auto text-end">
-                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
-                                            Agregar</button>
+                                            <div class="col-auto text-end">
+                                                <button class="btn btn-success" id="agregar-estacion-btn"><i
+                                                        class="bi bi-check-lg"></i>
+                                                    Agregar</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Horario y estaciones segun el evento -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading1">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#horarios-acc" aria-expanded="true" aria-controls="horarios-acc">
-                                <b>Asignar estaciones / Modificar horarios</b>
-                            </button>
-                        </h2>
+            <!-- EVENTOS -->
+            <div class="accordion-item">
+                <div class="accordion-header" id="eventos-div-btn">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#eventos-div" aria-expanded="true" aria-controls="eventos-div">
+                        <h3><i class="bi bi-trophy"></i> Eventos</h3>
+                    </button>
+                </div>
 
-                        <div id="horarios-acc" class="accordion-collapse collapse" aria-labelledby="headinghorarios-acc"
-                            data-bs-parent="#accordionEventos">
-                            <div class="accordion-body">
-                                <form id="horario-estaciones-frm">
-                                    <!-- Evento -->
-                                    <div class="input-group mb-2">
-                                        <label class="input-group-text" for="evento">Evento</label>
-                                        <select class="form-select" name="evento">
-                                            <option value="" selected>Seleccione</option>
-                                            <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
-                                                <option value="<%= evt.id %>">
-                                                    <%= evt.descripcion%>
-                                                </option>
-                                                <% }})%>
-                                        </select>
-                                    </div>
+                <div id="eventos-div" class="accordion-collapse collapse" aria-labelledby="eventos-div-btn"
+                    data-bs-parent="#accordionGestion">
+                    <div class="accordion-body">
+                        <!-- Tabla de eventos -->
+                        <div class="mb-3">
+                            <div class="table-responsive mb-2">
+                                <table id="eventos-tbl" class="table table-hover evt-est">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Descripción</th>
+                                            <th>Fecha Ini.</th>
+                                            <th>Fecha Fin.</th>
+                                            <th>Inicio</th>
+                                            <th>Cierre</th>
+                                            <th>Estaciones</th>
+                                            <th class="text-center">Estatus</th>
+                                            <th class="text-center">Acc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% eventos.forEach(evt=>{ %>
+                                            <tr id="reg-<%= evt.id%>">
+                                                <% for(let col in evt) { %>
+                                                    <td>
+                                                        <%= evt[col] %>
+                                                    </td>
+                                                    <% }%>
+                                                        <td class="text-center">
+                                                            <button data-id="<%= evt['id']%>" data-tipo="eventos"
+                                                                class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                                title="Eliminar" data-bs-toggle="modal"
+                                                                data-bs-target="#confirmar-eliminacion-modal"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                                    <!-- Horario -->
-                                    <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 mb-2">
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrIni">Hora de inicio</label>
-                                            <select class="form-select" name="inicio">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                        <div class="input-group">
-                                            <label class="input-group-text" for="evtHrFin">Hora de cierre</label>
-                                            <select class="form-select" name="cierre">
-                                                <option value="" selected>Seleccione</option>
-                                                <% horarios.forEach(hr=> {%>
-                                                    <option value="<%= hr.hora %>">
-                                                        <%= hr.hora%>
-                                                    </option>
-                                                    <%})%>
-                                            </select>
-                                        </div>
-                                    </div>
+                        <!-- Gestion de eventos -->
+                        <div class="accordion" id="accordionEventos">
+                            <!-- Agregar nuevo evento -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading2">
+                                    <button class="accordion-button sub" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#eventos-acc" aria-expanded="true" aria-controls="eventos-acc">
+                                        <b>Nuevo evento</b>
+                                    </button>
+                                </h2>
+                                <div id="eventos-acc" class="accordion-collapse collapse"
+                                    aria-labelledby="headingeventos-acc" data-bs-parent="#accordionEventos">
+                                    <div class="accordion-body sub">
+                                        <form id="nuevo-evento-frm">
+                                            <!-- Evento -->
+                                            <input type="text" class="form-control" name="evtdesc"
+                                                placeholder="Nombre del evento">
 
-                                    <!-- Estaciones -->
-                                    <div class="accordion mb-2" id="estaciones-evt">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingOne">
-                                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                                    data-bs-target="#collapseOne" aria-expanded="true"
-                                                    aria-controls="collapseOne">
-                                                    Estaciones para el evento
-                                                </button>
-                                            </h2>
-                                            <div id="collapseOne" class="accordion-collapse collapse"
-                                                aria-labelledby="headingOne" data-bs-parent="#estaciones-evt">
-                                                <div class="accordion-body">
-                                                    <% estaciones.forEach(est=> { %>
-                                                        <div class="">
-                                                            <input class="estacion-chk" type="checkbox"
-                                                                name="estaciones" value="<%= est.id %>">
-                                                            <label for="estacion">
-                                                                <%= est.id %>
-                                                                    <%= est.descripcion%>
-                                                            </label>
-                                                        </div>
-                                                        <% })%>
+                                            <!-- Fecha -->
+                                            <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtfecini">Desde</label>
+                                                    <input type="date" class="form-control" name="evtfecini">
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtfecfin">Hasta</label>
+                                                    <input type="date" class="form-control" name="evtfecfin">
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Boton -->
-                                    <div class="col-auto text-end">
-                                        <button class="btn btn-success"><i class="bi bi-check-lg"></i>
-                                            Aceptar</button>
+                                            <!-- Horario -->
+                                            <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 my-2">
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtHrIni">Hora de
+                                                        inicio</label>
+                                                    <select class="form-select" name="inicio">
+                                                        <option value="" selected>Seleccione</option>
+                                                        <% horarios.forEach(hr=> {%>
+                                                            <option value="<%= hr.hora %>">
+                                                                <%= hr.hora%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtHrFin">Hora de
+                                                        cierre</label>
+                                                    <select class="form-select" name="cierre">
+                                                        <option value="" selected>Seleccione</option>
+                                                        <% horarios.forEach(hr=> {%>
+                                                            <option value="<%= hr.hora %>">
+                                                                <%= hr.hora%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Estaciones -->
+                                            <div class="accordion mb-2" id="estaciones-evt">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="headingOne">
+                                                        <button class="accordion-button" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                                            aria-expanded="true" aria-controls="collapseOne">
+                                                            Estaciones para el evento
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseOne" class="accordion-collapse collapse"
+                                                        aria-labelledby="headingOne" data-bs-parent="#estaciones-evt">
+                                                        <div class="accordion-body">
+                                                            <% estaciones.forEach(est=> { %>
+                                                                <div class="">
+                                                                    <input class="estacion-chk" type="checkbox"
+                                                                        name="estaciones" value="<%= est.id %>">
+                                                                    <label for="estacion">
+                                                                        <%= est.id %>
+                                                                            <%= est.descripcion%>
+                                                                    </label>
+                                                                </div>
+                                                                <% })%>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-auto text-end">
+                                                <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                                    Agregar</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
+                            </div>
+
+                            <!-- Horario y estaciones segun el evento -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading1">
+                                    <button class="accordion-button sub" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#horarios-acc" aria-expanded="true"
+                                        aria-controls="horarios-acc">
+                                        <b>Reasignar estaciones/horarios</b>
+                                    </button>
+                                </h2>
+
+                                <div id="horarios-acc" class="accordion-collapse collapse"
+                                    aria-labelledby="headinghorarios-acc" data-bs-parent="#accordionEventos">
+                                    <div class="accordion-body sub">
+                                        <form id="horario-estaciones-frm">
+                                            <!-- Evento -->
+                                            <div class="input-group mb-2">
+                                                <label class="input-group-text" for="evento">Evento</label>
+                                                <select class="form-select" name="evento">
+                                                    <option value="" selected>Seleccione</option>
+                                                    <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
+                                                        <option value="<%= evt.id %>">
+                                                            <%= evt.descripcion%>
+                                                        </option>
+                                                        <% }})%>
+                                                </select>
+                                            </div>
+
+                                            <!-- Horario -->
+                                            <div class="d-flex flex-wrap flex-lg-nowrap d-grid gap-2 mb-2">
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtHrIni">Hora de
+                                                        inicio</label>
+                                                    <select class="form-select" name="inicio">
+                                                        <option value="" selected>Seleccione</option>
+                                                        <% horarios.forEach(hr=> {%>
+                                                            <option value="<%= hr.hora %>">
+                                                                <%= hr.hora%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                                <div class="input-group">
+                                                    <label class="input-group-text" for="evtHrFin">Hora de
+                                                        cierre</label>
+                                                    <select class="form-select" name="cierre">
+                                                        <option value="" selected>Seleccione</option>
+                                                        <% horarios.forEach(hr=> {%>
+                                                            <option value="<%= hr.hora %>">
+                                                                <%= hr.hora%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Estaciones -->
+                                            <div class="accordion mb-2" id="estaciones-evt">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="headingOne">
+                                                        <button class="accordion-button" type="button"
+                                                            data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                                            aria-expanded="true" aria-controls="collapseOne">
+                                                            Estaciones para el evento
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseOne" class="accordion-collapse collapse"
+                                                        aria-labelledby="headingOne" data-bs-parent="#estaciones-evt">
+                                                        <div class="accordion-body">
+                                                            <% estaciones.forEach(est=> { %>
+                                                                <div class="">
+                                                                    <input class="estacion-chk" type="checkbox"
+                                                                        name="estaciones" value="<%= est.id %>">
+                                                                    <label for="estacion">
+                                                                        <%= est.id %>
+                                                                            <%= est.descripcion%>
+                                                                    </label>
+                                                                </div>
+                                                                <% })%>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Boton -->
+                                            <div class="col-auto text-end">
+                                                <button class="btn btn-success"><i class="bi bi-check-lg"></i>
+                                                    Aceptar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- DESCANSOS -->
+            <div class="accordion-item">
+                <div class="accordion-header" id="descansos-div-btn">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#descansos-div" aria-expanded="true" aria-controls="descansos-div">
+                        <h3><i class="bi bi-sign-stop"></i> Descansos</h3>
+                    </button>
+                </div>
+
+                <div id="descansos-div" class="accordion-collapse collapse" aria-labelledby="descansos-div-btn"
+                    data-bs-parent="#accordionGestion">
+                    <div class="accordion-body">
+                        <!-- Tabla de descansos -->
+                        <div class="mb-3">
+                            <div class="table-responsive mb-2">
+                                <table id="descansos-tbl" class="table table-hover evt-est">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Estación</th>
+                                            <th>Evento</th>
+                                            <th>Descanso</th>
+                                            <th class="text-center">Acc</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% descansos.forEach(des=>{ %>
+                                            <tr id="reg-<%= est.id%>">
+                                                <% for(let col in des) { %>
+                                                    <td>
+                                                        <%= des[col] %>
+                                                    </td>
+                                                    <% } %>
+                                                        <td class="text-center">
+                                                            <button data-id="<%= des['id']%>" data-tipo="descansos"
+                                                                class="btn btn-outline-danger btn-sm eliminar-btn"
+                                                                title="Eliminar" data-bs-toggle="modal"
+                                                                data-bs-target="#confirmar-eliminacion-modal"><i
+                                                                    class="bi bi-trash"></i></button>
+                                                        </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Gestion de descansos -->
+                        <div class="accordion" id="accordionDescansos">
+                            <!-- Asignar descanso -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading1">
+                                    <button class="accordion-button sub" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#descansos-acc" aria-expanded="true"
+                                        aria-controls="descansos-acc">
+                                        <b>Nueva asignación</b>
+                                    </button>
+                                </h2>
+
+                                <div id="descansos-acc" class="accordion-collapse collapse"
+                                    aria-labelledby="headingestaciones-acc" data-bs-parent="#accordionEstaciones">
+                                    <div class="accordion-body sub">
+                                        <form id="nuevo-descanso-frm" class="d-grid gap-2 mt-2">
+                                            <!-- Eventos -->
+                                            <div class="input-group">
+                                                <label class="input-group-text" for="evento">Evento</label>
+                                                <select id="descanso-eventos" class="form-select" name="evento">
+                                                    <option value="" selected>Seleccione</option>
+                                                    <% eventos.forEach(evt=> { if(evt.estatus == "En curso"){%>
+                                                        <option value="<%= evt.descripcion %>"
+                                                            data-evt-id="<%= evt.id %>"
+                                                            data-hora-ini="<%= evt.hora_inicio %>"
+                                                            data-hora-fin="<%= evt.hora_cierre %>">
+                                                            <%= evt.descripcion%>
+                                                        </option>
+                                                        <% }})%>
+                                                </select>
+                                            </div>
+
+                                            <!-- Estaciones -->
+                                            <div class="input-group">
+                                                <label class="input-group-text" for="evtHrIni">Estación</label>
+                                                <select id="descanso-estaciones" class="form-select" name="estacion"
+                                                    disabled>
+                                                    <option value=''>Seleccionar</option>
+                                                    <!-- DATA -->
+                                                </select>
+                                            </div>
+
+                                            <!-- Hora descanso -->
+                                            <div class="input-group">
+                                                <label class="input-group-text" for="evtHrIni">Hora de
+                                                    descanso</label>
+                                                <select id="descanso-horario" class="form-select" name="hora" disabled>
+                                                    <option value=''>Seleccionar</option>
+                                                    <!-- DATA -->
+                                                </select>
+                                            </div>
+
+                                            <div class="col-auto text-end">
+                                                <button class="btn btn-success" id="agregar-descanso-btn"><i
+                                                        class="bi bi-check-lg"></i>
+                                                    Asignar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ESTACIONES -->
-            <div class="border rounded-3 shadow p-3" style="flex-grow: 1;background-color: snow;">
-                <!-- Tabla -->
-                <div class="mb-3">
-                    <h2 class="text-muted"><i class="bi bi-clipboard2-pulse"></i> Estaciones</h2>
-                    <hr>
-                    <div class="table-responsive mb-2">
-                        <table id="estaciones-tbl" class="table table-hover evt-est">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Estación</th>
-                                    <th class="text-center">Acc</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% estaciones.forEach(est=>{ %>
-                                    <tr id="reg-<%= est.id%>">
-                                        <% for(let col in est) { %>
-                                            <td>
-                                                <%= est[col] %>
-                                            </td>
-                                            <% } %>
-                                                <td class="text-center">
-                                                    <button data-id="<%= est['id']%>" data-tipo="estaciones"
-                                                        class="btn btn-outline-danger btn-sm eliminar-btn"
-                                                        title="Eliminar" data-bs-toggle="modal"
-                                                        data-bs-target="#confirmar-eliminacion-modal"><i
-                                                            class="bi bi-trash"></i></button>
-                                                </td>
+            <!-- HISTORIAL -->
+            <div class="accordion-item">
+                <div class="accordion-header" id="historial-div-btn">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#historial-div" aria-expanded="true" aria-controls="historial-div">
+                        <h3><i class="bi bi-database"></i> Historial de registros de usuarios</h3>
+                    </button>
+                </div>
+
+                <div id="historial-div" class="accordion-collapse collapse" aria-labelledby="historial-div-btn"
+                    data-bs-parent="#accordionGestion">
+                    <div class="accordion-body">
+                        <div class="table-responsive">
+                            <table id="registros-agenda-tbl" class="table table-hover" style="width:100%">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Fecha Registro</th>
+                                        <th>Nombre</th>
+                                        <th>Cedula</th>
+                                        <th>Edad</th>
+                                        <th>Genero</th>
+                                        <th>Estado</th>
+                                        <th>Ciudad</th>
+                                        <th>Teléfono</th>
+                                        <th>Correo</th>
+                                        <th>Instagram</th>
+                                        <th>Evento</th>
+                                        <th>Disciplina</th>
+                                        <th>Categoria</th>
+                                        <th>Equipo</th>
+                                        <th>Estación</th>
+                                        <th>Fecha cita</th>
+                                        <th>Hora cita</th>
+                                        <th>Concluida</th>
+                                        <th>Eliminar</th>
                                     </tr>
-                                    <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Gestion de estaciones -->
-                <div class="accordion" id="accordionEstaciones">
-                    <!-- Agregar estacion -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading1">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#estaciones-acc" aria-expanded="true" aria-controls="estaciones-acc">
-                                <b>Nueva estación</b>
-                            </button>
-                        </h2>
-
-                        <div id="estaciones-acc" class="accordion-collapse collapse"
-                            aria-labelledby="headingestaciones-acc" data-bs-parent="#accordionEstaciones">
-                            <div class="accordion-body">
-                                <form id="nueva-estacion-frm" class="d-grid gap-2 mt-2">
-                                    <input type="text" id="estacion-descripcion" class="form-control" name="estacion"
-                                        placeholder="Nombre de la estación">
-                                    <input type="file" id="estacion-img" class="form-control" name="imagen"
-                                        accept=".jpg, .jpeg">
-                                    <small class="text-muted">Imagen de estación: formato jpg 1000x500 px</small>
-
-                                    <div class="col-auto text-end">
-                                        <button class="btn btn-success" id="agregar-estacion-btn"><i
-                                                class="bi bi-check-lg"></i>
-                                            Agregar</button>
-                                    </div>
-                                </form>
-                            </div>
+                                </thead>
+                                <tbody>
+                                    <% registros.forEach(reg=>{ %>
+                                        <tr>
+                                            <% for(let col in reg) { if(col=="concluida" ){ if(reg[col]==0){ %>
+                                                <td class="text-center">
+                                                    <i class="btn btn-outline-success bi bi-hand-thumbs-up text-success concluir-cita-btn"
+                                                        data-reng="<%= reg['id'] %>" data-cedula="<%= reg['cedula'] %>"
+                                                        alt="Marcar cita como concluida"></i>
+                                                </td>
+                                                <% }else{ %>
+                                                    <td class="text-center">
+                                                        <i class="bi bi-check-lg text-success" alt="Cita concluida"
+                                                            style="font-size:2em"></i>
+                                                    </td>
+                                                    <%} }else { %>
+                                                        <td>
+                                                            <%= reg[col] %>
+                                                        </td>
+                                                        <%} }%>
+                                                            <td class="text-center">
+                                                                <i class="btn btn-outline-danger bi bi-trash  btn-sm eliminar-btn"
+                                                                    data-id="<%= reg['id'] %>" data-tipo="cita"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#confirmar-eliminacion-modal"
+                                                                    alt="Eliminar cita"></i>
+                                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- HISTORIAL DE REGISTROS -->
-        <h2 class="text-muted"><i class="bi bi-database"></i> Historial de registros de usuarios</h2>
-        <hr>
 
-        <div class="table-responsive">
-            <table id="registros-agenda-tbl" class="table table-hover" style="width:100%">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Fecha Registro</th>
-                        <th>Nombre</th>
-                        <th>Cedula</th>
-                        <th>Edad</th>
-                        <th>Genero</th>
-                        <th>Estado</th>
-                        <th>Ciudad</th>
-                        <th>Teléfono</th>
-                        <th>Correo</th>
-                        <th>Instagram</th>
-                        <th>Evento</th>
-                        <th>Equipo</th>
-                        <th>Categoria</th>
-                        <th>Estación</th>
-                        <th>Fecha cita</th>
-                        <th>Hora cita</th>
-                        <th>Concluida</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% registros.forEach(reg=>{ %>
-                        <tr>
-                            <% for(let col in reg) { if(col=="concluida" ){ if(reg[col]==0){ %>
-                                <td class="text-center">
-                                    <i class="btn btn-outline-success bi bi-hand-thumbs-up text-success concluir-cita-btn"
-                                        data-reng="<%= reg['id'] %>" data-cedula="<%= reg['cedula'] %>"
-                                        alt="Marcar cita como concluida"></i>
-                                </td>
-                                <% }else{ %>
-                                    <td class="text-center">
-                                        <i class="bi bi-check-lg text-success" alt="Cita concluida"
-                                            style="font-size:2em"></i>
-                                    </td>
-                                    <%} }else { %>
-                                        <td>
-                                            <%= reg[col] %>
-                                        </td>
-                                        <%} }%>
-                                            <td class="text-center">
-                                                <i class="btn btn-outline-danger bi bi-trash  btn-sm eliminar-btn"
-                                                    data-id="<%= reg['id'] %>" data-tipo="cita" data-bs-toggle="modal"
-                                                    data-bs-target="#confirmar-eliminacion-modal"
-                                                    alt="Eliminar cita"></i>
-                                            </td>
-                        </tr>
-                        <% }) %>
-                </tbody>
-            </table>
-        </div>
     </div>
 
     <!-- MODAL LOGIN -->

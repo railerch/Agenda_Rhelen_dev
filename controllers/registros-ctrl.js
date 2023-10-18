@@ -41,10 +41,11 @@ const dataQuery = (req, res) => {
             [agenda, metadata] = await conn.query("SELECT * FROM agenda");
             [evt, metadata] = await conn.query("SELECT * FROM eventos");
             [est, metadata] = await conn.query("SELECT * FROM estaciones");
+            [desc, metadata] = await conn.query("SELECT * FROM descansos");
             [hrs, metadata] = await conn.query("SELECT * FROM horarios");
             res.status(200);
             res.header("content-type", "text/html");
-            res.render("data-query", { server: data[0].server, eventos: evt, estaciones: est, horarios: hrs, registros: agenda });
+            res.render("data-query", { server: data[0].server, eventos: evt, estaciones: est, horarios: hrs, descansos: desc, registros: agenda });
         } catch (error) {
             res.status(500);
             res.send(error.name);
@@ -95,12 +96,58 @@ const estacionesHorarioEventoSeleccionado = (req, res) => {
 }
 
 const horariosNoDisponibles = (req, res) => {
+    let evento = req.params.evento;
     let fechaCita = req.params.fechaCita;
     let estacion = req.params.estacion;
 
     async function tmp() {
         try {
-            [rows, metadata] = await conn.query(`SELECT hora_cita AS hora_no_disponible FROM agenda WHERE estacion = '${estacion}' AND fecha_cita = '${fechaCita}'`);
+            [rows, metadata] = await conn.query(`SELECT hora_cita AS hora_no_disponible FROM agenda WHERE evento= '${evento}' AND estacion = '${estacion}' AND fecha_cita = '${fechaCita}'`);
+            res.header("content-type", "application/json");
+            res.json(rows);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const agregarEstacion = (req, res) => {
+    let estacion = req.body.estacion;
+
+    async function tmp() {
+        try {
+            await conn.query(`INSERT INTO estaciones SET id = 'NULL', descripcion='${estacion}'`);
+            [rows, metadata] = await conn.query("SELECT * FROM estaciones");
+            res.header("content-type", "application/json");
+            res.json(rows);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const eliminarEstacion = (req, res) => {
+    async function tmp() {
+        let id = req.params.id
+        try {
+            // Eliminar imagen de la estacion
+            [row, metadata] = await conn.query(`SELECT descripcion FROM estaciones WHERE id = ${id}`);
+            let archivo = row[0].descripcion.replaceAll(" ", "_") + ".jpg";
+            FS.existsSync(`public/img/${archivo}`) ? FS.unlinkSync(`public/img/${archivo}`) : null;
+
+            // Eliminar estacion de la bd
+            await conn.query(`DELETE FROM estaciones WHERE id = ${id}`);
+            reiniciar_conteo_claves_primarias("estaciones", "id");
+
+            [rows, metadata] = await conn.query("SELECT * FROM estaciones");
             res.header("content-type", "application/json");
             res.json(rows);
             res.end();
@@ -119,7 +166,7 @@ const agregarEvento = (req, res) => {
         let fechaActual = new Date(Date.now()).toISOString().split("T")[0];
         try {
             // Agregar nuevo evento
-            await conn.query(`INSERT INTO eventos SET id=null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estaciones=null, estatus='En curso'`);
+            await conn.query(`INSERT INTO eventos SET id=null, descripcion='${data.evtdesc}', fecha_ini='${data.evtfecini}', fecha_fin='${data.evtfecfin}', hora_inicio='${data.inicio}', hora_cierre='${data.cierre}', estaciones='${data.estaciones}', estatus='En curso'`);
 
             // Actualizar estatus de eventos pasados
             await conn.query(`UPDATE eventos SET estatus='Finalizado' WHERE fecha_fin < '${fechaActual}'`);
@@ -144,29 +191,9 @@ const eliminarEvento = (req, res) => {
         let id = req.params.id
         try {
             await conn.query(`DELETE FROM eventos WHERE id = ${id}`);
+            reiniciar_conteo_claves_primarias("eventos", "id");
+
             [rows, metadata] = await conn.query("SELECT * FROM eventos");
-            res.header("content-type", "application/json");
-            res.json(rows);
-            res.end();
-        } catch (error) {
-            res.status(500);
-            res.send(error.name);
-            res.end();
-        }
-    }
-    tmp();
-}
-
-const agregarEstacion = (req, res) => {
-    let estacion = req.body.estacion;
-    let img = req.file;
-    console.log(estacion, img);
-    res.json({ stmr: true });
-
-    async function tmp() {
-        try {
-            await conn.query(`INSERT INTO estaciones SET id = 'NULL', descripcion='${estacion}'`);
-            [rows, metadata] = await conn.query("SELECT * FROM estaciones");
             res.header("content-type", "application/json");
             res.json(rows);
             res.end();
@@ -200,19 +227,57 @@ const actualizarHorariosYestacionesDelEvt = (req, res) => {
     tmp();
 }
 
-const eliminarEstacion = (req, res) => {
+const consultarDescansoEstacion = (req, res) => {
+    async function tmp() {
+        let evento = req.params.evento;
+        let estacion = req.params.estacion;
+        try {
+            // Consultar descansos para enviar actualizaciones
+            [rows, metadata] = await conn.query(`SELECT hora FROM descansos WHERE estacion='${estacion}' AND evento='${evento}'`);
+
+            res.header("content-type", "application/json");
+            res.json(rows);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const agregarDescanso = (req, res) => {
+    async function tmp() {
+        let data = req.body;
+        console.log(data);
+        try {
+            // Agregar nuevo descanso
+            await conn.query(`INSERT INTO descansos SET id=null, estacion='${data.estacion}', evento='${data.evento}', hora='${data.hora}'`);
+
+            // Consultar descansos para enviar actualizaciones
+            [rows, metadata] = await conn.query("SELECT * FROM descansos");
+
+            res.header("content-type", "application/json");
+            res.json(rows);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const eliminarDescanso = (req, res) => {
     async function tmp() {
         let id = req.params.id
         try {
-            // Eliminar imagen de la estacion
-            [row, metadata] = await conn.query(`SELECT descripcion FROM estaciones WHERE id = ${id}`);
-            let archivo = row[0].descripcion.replaceAll(" ", "_") + ".jpg";
-            FS.existsSync(`public/img/${archivo}`) ? FS.unlinkSync(`public/img/${archivo}`) : null;
+            await conn.query(`DELETE FROM descansos WHERE id = ${id}`);
+            reiniciar_conteo_claves_primarias("descansos", "id");
 
-            // Eliminar estacion de la bd
-            await conn.query(`DELETE FROM estaciones WHERE id = ${id}`);
-
-            [rows, metadata] = await conn.query("SELECT * FROM estaciones");
+            [rows, metadata] = await conn.query("SELECT * FROM descansos");
             res.header("content-type", "application/json");
             res.json(rows);
             res.end();
@@ -246,8 +311,8 @@ const consultarRegistros = (req, res) => {
 const insertarRegistro = (req, res) => {
     async function agendarCita(data) {
         try {
-            let sql = `INSERT INTO agenda (id, fecha_reg, nombre, cedula, edad, genero, estado, ciudad, telefono, correo, instagram, evento, equipo, categoria, estacion, fecha_cita, hora_cita, concluida) 
-            VALUES (${null}, '${new Date().toLocaleString()}', '${data.nombre}', '${data.cedula}', ${data.edad}, '${data.genero}', '${data.estado}', '${data.ciudad}', '${data.telefono}', '${data.correo}', '${data.instagram}', '${data.evento}', '${data.equipo}', '${data.categoria}', '${data.estacion}', '${data.fecha_cita}', '${data.hora_cita}', 0)`;
+            let sql = `INSERT INTO agenda (id, fecha_reg, nombre, cedula, edad, genero, estado, ciudad, telefono, correo, instagram, evento, disciplina, categoria, equipo, estacion, fecha_cita, hora_cita, concluida) 
+            VALUES (${null}, '${new Date().toLocaleString()}', '${data.nombre}', '${data.cedula}', ${data.edad}, '${data.genero}', '${data.estado}', '${data.ciudad}', '${data.telefono}', '${data.correo}', '${data.instagram}', '${data.evento}', '${data.disciplina}', '${data.categoria}', '${data.equipo}', '${data.estacion}', '${data.fecha_cita}', '${data.hora_cita}', 0)`;
 
             [rows, metadata] = await conn.query(sql);
 
@@ -348,6 +413,17 @@ const concluirCita = (req, res) => {
 
 }
 
+function reiniciar_conteo_claves_primarias(tabla, clavePrimaria) {
+    Promise
+        .all([
+            conn.query(`ALTER TABLE ${tabla} DROP ${clavePrimaria}`),
+            conn.query(`ALTER TABLE ${tabla} AUTO_INCREMENT = 1;`),
+            conn.query(`ALTER TABLE ${tabla} ADD ${clavePrimaria} int UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST`)
+        ]).catch(err => {
+            console.log(err);
+        });
+}
+
 module.exports = {
     landingPage,
     dataEntry,
@@ -362,5 +438,9 @@ module.exports = {
     eliminarEstacion,
     actualizarHorariosYestacionesDelEvt,
     estacionesHorarioEventoSeleccionado,
-    eliminarRegistro
+    eliminarRegistro,
+    consultarDescansoEstacion,
+    agregarDescanso,
+    eliminarDescanso
+
 }
