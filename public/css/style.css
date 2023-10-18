@@ -1,5 +1,4 @@
 #container-dataquery {
-    max-width: 98%;
     margin: 0 auto;
     box-shadow: 0 0 15px #00000050;
     padding: 25px 10px 25px 10px;
@@ -54,4 +53,36 @@
 
 .table {
     width: 100% !important;
+}
+
+.accordion-button {
+    background-color: #5c108c !important;
+    color: #f5b700 !important;
+}
+
+.accordion-button.sub {
+    background-color: #dca5ff !important;
+    color: #5c108c !important;
+}
+
+.accordion-body {
+    background-color: antiquewhite;
+}
+
+.accordion-body.sub {
+    background-color: #fff;
+}
+
+/* MEDIA QUERIES */
+
+@media (max-width:720px) {
+    #container-dataquery {
+        width: 98%;
+    }
+}
+
+@media (min-width:720px) {
+    #container-dataquery {
+        width: 75%;
+    }
 }
