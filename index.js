@@ -5,7 +5,7 @@ const PATH = require("path");
 const REGISTROS = require("./routes/registros-rt");
 
 // CONFIG
-APP.set("port", 8000);
+APP.set("port", 3000);
 APP.set("view engine", "ejs");
 APP.set("views", PATH.join(__dirname, "views"));
 
@@ -23,7 +23,7 @@ APP.use("/", REGISTROS);
 APP.get("/server", (req, res) => {
     res.status(200);
     res.header("content-type", "text/html");
-    res.render("serverPage", { port: 8000 })
+    res.render("serverPage", { port: 3000 })
 })
 
 // SERVER

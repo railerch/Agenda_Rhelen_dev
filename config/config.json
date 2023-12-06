@@ -2,8 +2,9 @@
     {
         "db": {
             "user": "agenda_user",
-            "pass": "rhelen_$123."
+            "pass": "rhelen_$123.",
+            "data_base": "agenda_rhelen_dev"
         },
-        "server": "http://arnica.dnsalias.com:8000/"
+        "server": "/"
     }
 ]

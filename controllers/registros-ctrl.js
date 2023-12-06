@@ -3,6 +3,7 @@ const { conn, connTest } = require("../sequelize");
 const PATH = require("path");
 const URL = require("url");
 const FS = require("fs");
+const MULTER = require("multer");
 data = JSON.parse(FS.readFileSync("./config/config.json", "utf8"));
 
 // VISTAS
@@ -115,6 +116,40 @@ const horariosNoDisponibles = (req, res) => {
     tmp();
 }
 
+const consultarEstacion = (req, res) => {
+    let regId = req.params.id;
+    async function tmp() {
+        try {
+            [row, metadata] = await conn.query(`SELECT * FROM estaciones WHERE id = ${regId}`);
+            res.header("content-type", "application/json");
+            res.json(row);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const buscarUsuario = (req, res) => {
+    let cedula = req.params.cedula;
+    async function tmp() {
+        try {
+            [row, metadata] = await conn.query(`SELECT * FROM agenda WHERE cedula = ${cedula} ORDER BY id DESC LIMIT 1`);
+            res.header("content-type", "application/json");
+            res.json(row);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
 const agregarEstacion = (req, res) => {
     let estacion = req.body.estacion;
 
@@ -124,6 +159,37 @@ const agregarEstacion = (req, res) => {
             [rows, metadata] = await conn.query("SELECT * FROM estaciones");
             res.header("content-type", "application/json");
             res.json(rows);
+            res.end();
+        } catch (error) {
+            res.status(500);
+            res.send(error.name);
+            res.end();
+        }
+    }
+    tmp();
+}
+
+const modificarEstacion = (req, res) => {
+    let id = req.params.id
+    let nuevaDesc = req.body.estacion;
+
+    async function tmp() {
+        try {
+            // Si cambia el nombre de la estacion se elimina la imagen anterior
+            [row, metadata] = await conn.query(`SELECT descripcion FROM estaciones WHERE id = ${id}`);
+
+            // Solo cambiar el nombre de la estacion
+            let archivo = row[0].descripcion.replaceAll(" ", "_") + ".jpg";
+            if (nuevaDesc != row[0].descripcion) {
+                // Renombrar imagen
+                FS.renameSync(`public/img/${archivo}`, `public/img/${nuevaDesc.replaceAll(" ", "_")}.jpg`);
+            }
+
+            // Actualizar descripcion
+            await conn.query(`UPDATE estaciones SET descripcion = '${nuevaDesc}' WHERE id = ${id}`);
+
+            res.header("content-type", "application/json");
+            res.json({ stmt: true });
             res.end();
         } catch (error) {
             res.status(500);
@@ -153,7 +219,7 @@ const eliminarEstacion = (req, res) => {
             res.end();
         } catch (error) {
             res.status(500);
-            res.send(error.name);
+            res.send(error);
             res.end();
         }
     }
@@ -233,7 +299,7 @@ const consultarDescansoEstacion = (req, res) => {
         let estacion = req.params.estacion;
         try {
             // Consultar descansos para enviar actualizaciones
-            [rows, metadata] = await conn.query(`SELECT hora FROM descansos WHERE estacion='${estacion}' AND evento='${evento}'`);
+            [rows, metadata] = await conn.query(`SELECT desde, hasta FROM descansos WHERE estacion='${estacion}' AND evento='${evento}'`);
 
             res.header("content-type", "application/json");
             res.json(rows);
@@ -250,10 +316,16 @@ const consultarDescansoEstacion = (req, res) => {
 const agregarDescanso = (req, res) => {
     async function tmp() {
         let data = req.body;
-        console.log(data);
         try {
-            // Agregar nuevo descanso
-            await conn.query(`INSERT INTO descansos SET id=null, estacion='${data.estacion}', evento='${data.evento}', hora='${data.hora}'`);
+            // Validar que la estacion no tenga descanso asignado
+            [row, metadata] = await conn.query(`SELECT COUNT(id) as total FROM descansos WHERE estacion = '${data.estacion}' AND evento='${data.evento}'`);
+            if (row[0]['total'] > 0) {
+                // Actualizar descanso
+                await conn.query(`UPDATE descansos SET desde='${data.desde}', hasta='${data.hasta}' WHERE estacion = '${data.estacion}' AND evento='${data.evento}'`);
+            } else {
+                // Agregar nuevo descanso
+                await conn.query(`INSERT INTO descansos SET id=null, estacion='${data.estacion}', evento='${data.evento}', desde='${data.desde}', hasta='${data.hasta}'`);
+            }
 
             // Consultar descansos para enviar actualizaciones
             [rows, metadata] = await conn.query("SELECT * FROM descansos");
@@ -291,7 +363,6 @@ const eliminarDescanso = (req, res) => {
 }
 
 const consultarRegistros = (req, res) => {
-    connTest();
 
     async function tmp() {
         try {
@@ -324,7 +395,7 @@ const insertarRegistro = (req, res) => {
 
         } catch (error) {
             res.status(500);
-            res.send(error.name)
+            res.send(error)
         }
     }
 
@@ -430,10 +501,13 @@ module.exports = {
     insertarRegistro,
     dataQuery,
     consultarRegistros,
+    buscarUsuario,
     concluirCita,
     horariosNoDisponibles,
     agregarEvento,
     eliminarEvento,
+    consultarEstacion,
+    modificarEstacion,
     agregarEstacion,
     eliminarEstacion,
     actualizarHorariosYestacionesDelEvt,

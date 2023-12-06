@@ -1,5 +1,5 @@
 import * as fn from "./main-fn.js";
-let server = "http://arnica.dnsalias.com:8000";
+let server = "";
 
 window.onload = () => {
 
@@ -12,9 +12,8 @@ window.onload = () => {
         document.getElementById("evento-list").addEventListener("change", function () {
             if (this.value == "") {
                 document.querySelector("select[name=estacion]").setAttribute("disabled", true);
+                document.querySelectorAll(".estacion-img").forEach(img => img.setAttribute("src", `${server}/img/sinEstacion.jpg`))
             } else {
-                document.querySelector("select[name=estacion]").removeAttribute("disabled");
-
                 let evento = this.value;
                 let eventoId, fecIni, fecFin, evtInicio, evtCierre;
 
@@ -31,6 +30,7 @@ window.onload = () => {
                     .then(res => res.json())
                     .then(res => {
                         // Estaciones
+                        document.querySelector("select[name=estacion]").removeAttribute("disabled");
                         let estacionesEvento = document.querySelector("select[name=estacion]");
                         estacionesEvento.innerHTML = "<option value=''>Seleccionar estación</option>";
                         res.estaciones.forEach(est => {
@@ -52,12 +52,11 @@ window.onload = () => {
                         })
 
 
-                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+                    }).catch(err => $("#error-modal").modal("show"))
             }
 
             // Reiniciar valores
-            dataSet.clear();
-            document.querySelector("select[name=estacion]").value = "sinEstacion"
+            document.querySelector("select[name=estacion]").value = ""
             document.querySelector("select[name=estacion]").innerHTML = "<option value=''>Seleccionar estación</option>";
             document.querySelector("input[name=fecha-cita]").setAttribute("disabled", true);
             document.querySelector("input[name=fecha-cita]").value = "";
@@ -75,26 +74,22 @@ window.onload = () => {
             horaCita.value = "";
             horaCita.setAttribute("disabled", true);
 
-            // Eliminar fecha y hora del dataSet generado
-            dataSet.delete("fecha_cita");
-            dataSet.delete("hora_cita");
-
-            if (this.value != "sinEstacion") {
+            if (this.value != "") {
                 fechaCita.removeAttribute("disabled");
 
                 // Cambiar imagen de la estacion
                 let imagen = `${this.value.replaceAll(" ", "_")}.jpg`;
                 let alt = this.value;
-                document.querySelectorAll(".estacion-img").forEach(el => {
-                    el.setAttribute("src", `${server}/img/${imagen}`);
-                    el.setAttribute("alt", alt);
+                document.querySelectorAll(".estacion-img").forEach(img => {
+                    img.setAttribute("src", `${server}/img/${imagen}`);
+                    img.setAttribute("alt", alt);
                 })
             } else {
                 fechaCita.setAttribute("disabled", true);
                 horaCita.setAttribute("disabled", true);
-                document.querySelectorAll(".estacion-img").forEach(el => {
-                    el.setAttribute("src", `${server}/img/sinEstacion.jpg`);
-                    el.setAttribute("alt", "Debe seleccionar una estacion.");
+                document.querySelectorAll(".estacion-img").forEach(img => {
+                    img.setAttribute("src", `${server}/img/sinEstacion.jpg`);
+                    img.setAttribute("alt", "Debe seleccionar una estacion.");
                 })
             }
 
@@ -122,11 +117,6 @@ window.onload = () => {
                 document.querySelector("#limite-fecha-modal #fecha-fin").innerText = evento.fecFin;
                 $("#limite-fecha-modal").modal("show");
                 this.value = "";
-
-                // Eliminar hora y fecha del dataSet generado
-                dataSet.delete("fecha_cita");
-                this.value = "";
-                dataSet.delete("hora_cita");
                 horaCita.value = "";
                 horaCita.setAttribute("disabled", true);
             } else {
@@ -139,9 +129,6 @@ window.onload = () => {
                         opt.style.color = "green";
                     }
                 };
-
-                // Eliminar hora del dataSet generado
-                dataSet.delete("hora_cita");
 
                 // Consultar horarios disponibles segun la fecha
                 fetch(`${server}/horarios-no-disponibles/${evt.value}/${this.value}/${estacion.value}`)
@@ -157,24 +144,27 @@ window.onload = () => {
                             })
                         };
 
-                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+                    }).catch(err => {
+                        $("#error-modal").modal("show")
+                        horaCita.setAttribute("disabled", true);
+                    })
 
                 // Consultar hora de descanso
                 fetch(`${server}/consultar-descanso/${evt.value}/${estacion.value}`)
                     .then(res => res.json())
                     .then(res => {
-                        // Deshabilitar hora y marcar con un color diferente a los 
+                        // Deshabilitar hora y marcar con un color diferente a los
                         // horarios no disponibles
                         for (let opt of horaCitaOpt) {
                             res.forEach(descanso => {
-                                if (descanso.hora == opt.value) {
+                                if ((opt.value == descanso.desde || opt.value > descanso.desde) && opt.value <= descanso.hasta) {
                                     opt.setAttribute("disabled", true);
                                     opt.style.color = "blue";
                                 }
                             })
                         };
 
-                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+                    }).catch(err => $("#error-modal").modal("show"))
             }
         })
 
@@ -241,9 +231,7 @@ window.onload = () => {
                                     document.getElementById("adelante-btn").style.display = "none";
                                     document.getElementById("pagina-principal-btn").style.display = "inline";
                                 }, 500)
-                            }).catch(err => {
-                                console.log("HA OCURRIDO UN ERROR: " + err);
-                            })
+                            }).catch(err => $("#error-modal").modal("show"))
 
                         break;
                 }
@@ -251,20 +239,60 @@ window.onload = () => {
             })
         })
 
-        // ALMACENAR DATOS CONFORME SE INGRESAN EN PANTALLA
-        // Generar un conjunto de datos que este activo durante el llenado del formulario para al finalizar insertarlos en la BD
-        let dataSet = new Map()
-        document.querySelectorAll("input, select").forEach(el => {
-            el.addEventListener("blur", function () {
-                let key = this.getAttribute("name").replace("-", "_");
-                let val = this.value;
-                dataSet.set(`${key}`, val);
-                sessionStorage.setItem("datosRegistro", JSON.stringify(Object.fromEntries(dataSet)));
-            })
+        // BUSCAR DATOS DE USUARIOS REGISTRADOS EN EVENTOS PREVIOS
+        // Una vez ingresen su numero de cedula se completan 
+        document.getElementById("cedula").addEventListener("blur", function () {
+            if (this.value.match(/[0-9]{7,}/) && this.value.length <= 8) {
+                fn.preloader();
+                let cedula = this.value;
+                fetch(`${server}/buscar-usuario/${cedula}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        // Completar campos del formulario con los datos del usuario si existen
+                        let cols = ["categoria", "cedula", "ciudad", "correo", "disciplina", "edad", "equipo", "estado", "genero", "instagram", "nombre", "telefono"];
+                        if (res.length > 0) {
+                            cols.forEach(col => document.querySelector(`[name=${col}]`).value = res[0][col]);
+                        } else {
+                            cols.forEach(col => {
+                                if (col != "cedula") document.querySelector(`[name=${col}]`).value = "";
+                            })
+                        }
+
+                        // Habilitar campos del formulario
+                        document.querySelectorAll("#datos-registro-frm input, #datos-registro-frm select")
+                            .forEach(el => el.removeAttribute("disabled"))
+
+                        // Ocultar preloader
+                        setTimeout(function () {
+                            fn.preloader(false);
+                        }, 500)
+                    }).catch(err => {
+                        // Ocultar preloader y mostrar modal de error
+                        setTimeout(function () {
+                            fn.preloader(false);
+                            $("#error-modal").modal("show");
+                        }, 500)
+                    })
+            } else {
+                if (this.value != "") {
+                    $("#cedula-invalida-modal").modal("show");
+                }
+
+                this.value = "";
+                // Inhabilitar y reiniciar campos del formulario
+                document.querySelectorAll("#datos-registro-frm input, #datos-registro-frm select")
+                    .forEach(el => {
+                        if (el.id != "cedula") {
+                            el.setAttribute("disabled", true);
+                            el.value = "";
+                        };
+                    })
+
+            }
         })
     }
 
-    // TABLA DE REGISTROS
+    // SISTEMA DE GESTION
     if (window.location.pathname.includes("/dataquery")) {
         // Validar Cookies
         let recordarCuenta = document.getElementById("recordar-cuenta-chk");
@@ -359,7 +387,6 @@ window.onload = () => {
                     }).catch(err => {
                         fn.preloader(false);
                         $("#error-modal").modal("show");
-                        console.log("HA OCURRIDO UN ERROR: " + err)
                     })
             })
         })
@@ -388,10 +415,7 @@ window.onload = () => {
                             window.location.reload();
                         }, 1500)
                     })
-                    .catch(err => {
-                        $("#error-modal").modal("show");
-                        console.log("HA OCURRIDO UN ERROR: " + err)
-                    })
+                    .catch(err => $("#error-modal").modal("show"))
             } else {
                 $("#campos-vacios-modal").modal("show");
             }
@@ -401,7 +425,7 @@ window.onload = () => {
         document.getElementById("nueva-estacion-frm").addEventListener("submit", function (evt) {
             evt.preventDefault();
 
-            if (document.getElementById("estacion-descripcion").value != "" && document.getElementById("estacion-img").files[0] != "") {
+            if (document.getElementById("estacion-descripcion").value != "" && document.getElementById("estacion-img").value != "") {
                 let data = new FormData(document.getElementById("nueva-estacion-frm"));
 
                 fetch(`${server}/agregar-estacion`, { method: "post", body: data })
@@ -413,10 +437,42 @@ window.onload = () => {
                             window.location.reload();
                         }, 1500)
                     })
-                    .catch(err => {
-                        $("#error-modal").modal("show");
-                        console.log("HA OCURRIDO UN ERROR: " + err)
+                    .catch(err => $("#error-modal").modal("show"))
+            } else {
+                $("#campos-vacios-modal").modal("show");
+            }
+        })
+
+        // Modificar estacion
+        document.querySelectorAll(".modificar-est-btn").forEach(btn => {
+            btn.addEventListener("click", function (evt) {
+                let idReg = this.getAttribute("data-id")
+
+                fetch(`${server}/consultar-estacion/${idReg}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        document.getElementById("confirmar-modificar-est-btn").setAttribute("data-id", idReg);
+                        document.getElementById("nueva-est-descripcion").value = res[0].descripcion;
                     })
+                    .catch(err => $("#error-modal").modal("show"))
+            })
+        })
+
+        document.getElementById("confirmar-modificar-est-btn").addEventListener("click", function () {
+            if (document.getElementById("nueva-est-descripcion").value != "") {
+                let idReg = this.getAttribute("data-id");
+                let data = new FormData(document.getElementById("modificar-estacion-frm"));
+
+                fetch(`${server}/modificar-datos-estacion/${idReg}`, { method: "post", body: data })
+                    .then(res => res.json())
+                    .then(res => {
+                        $("#exito-modal").modal("show");
+                        document.getElementById("modificar-estacion-frm").reset();
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1500)
+                    })
+                    .catch(err => $("#error-modal").modal("show"))
             } else {
                 $("#campos-vacios-modal").modal("show");
             }
@@ -425,7 +481,7 @@ window.onload = () => {
         // Consultar estaciones y horarios segun el evento
         document.getElementById("descanso-eventos").addEventListener("change", function () {
             let estacionesEvento = document.getElementById("descanso-estaciones");
-            let horarioEvento = document.getElementById("descanso-horario");
+            let horarioDescanso = document.querySelectorAll(".descanso-horario");
             let evtId = this.options[this.selectedIndex].getAttribute("data-evt-id");
             let horaIni = this.options[this.selectedIndex].getAttribute("data-hora-ini");
             let horaFin = this.options[this.selectedIndex].getAttribute("data-hora-fin");
@@ -437,7 +493,7 @@ window.onload = () => {
                 horarioEvento.setAttribute("disabled", true);
             } else {
                 estacionesEvento.removeAttribute("disabled");
-                horarioEvento.removeAttribute("disabled");
+                horarioDescanso.forEach(hr => hr.removeAttribute("disabled"))
 
                 // Consultar horario y estaciones de atencion segun el evento seleccionado
                 fetch(`${server}/estaciones-horario-evento-seleccionado/${evtId}/${horaIni}/${horaFin}`)
@@ -453,15 +509,16 @@ window.onload = () => {
                         })
 
                         // Horario
-                        horarioEvento.innerHTML = "<option value=''>Seleccionar</option>";
-                        res.horario.forEach(hr => {
-                            let opt = document.createElement("option");
-                            opt.innerText = hr.hora
-                            opt.value = hr.hora;
-                            horarioEvento.append(opt);
+                        horarioDescanso.forEach(selector => {
+                            selector.innerHTML = "<option value=''>Seleccionar</option>";
+                            res.horario.forEach(hr => {
+                                let opt = document.createElement("option");
+                                opt.innerText = hr.hora
+                                opt.value = hr.hora;
+                                selector.append(opt);
+                            })
                         })
-
-                    }).catch(err => console.log("HA OCURRIDO UN ERROR: " + err))
+                    }).catch(err => $("#error-modal").modal("show"))
             }
         })
 
@@ -487,10 +544,7 @@ window.onload = () => {
                             window.location.reload();
                         }, 1500)
                     })
-                    .catch(err => {
-                        $("#error-modal").modal("show");
-                        console.log("HA OCURRIDO UN ERROR: " + err)
-                    })
+                    .catch(err => $("#error-modal").modal("show"))
             } else {
                 $("#campos-vacios-modal").modal("show");
             }
@@ -511,10 +565,7 @@ window.onload = () => {
                         window.location.reload();
                     }, 1500)
                 })
-                .catch(err => {
-                    $("#error-modal").modal("show");
-                    console.log("HA OCURRIDO UN ERROR: " + err)
-                })
+                .catch(err => $("#error-modal").modal("show"))
         })
 
         // Eliminar registros
@@ -555,10 +606,7 @@ window.onload = () => {
                         window.location.reload();
                     }, 1500)
 
-                }).catch(err => {
-                    $("#error-modal").modal("show");
-                    console.log("HA OCURRIDO UN ERROR: " + err);
-                })
+                }).catch(err => $("#error-modal").modal("show"))
         })
 
         // Alinear cabeceras de tablas al activar el contenedor del acordeon
@@ -569,7 +617,7 @@ window.onload = () => {
         As a result of that the elements inside the hidden container have no height or width 
         and therefore no responsive calculations are possible.What needs to happen is to call 
         columns.adjust() when the table is made visible.
-        
+         
         */
         document.querySelectorAll(".accordion-header").forEach(btn => {
             btn.addEventListener("click", function () {

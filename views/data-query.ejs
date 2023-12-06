@@ -85,11 +85,19 @@
                                                     </td>
                                                     <% } %>
                                                         <td class="text-center">
+                                                            <button data-id="<%= est['id']%>"
+                                                                class="btn btn-outline-primary btn-sm modificar-est-btn"
+                                                                title="Modificar" data-bs-toggle="modal"
+                                                                data-bs-target="#modificar-estacion-modal"><i
+                                                                    class="bi bi-pencil"></i></button>
+
                                                             <button data-id="<%= est['id']%>" data-tipo="estaciones"
                                                                 class="btn btn-outline-danger btn-sm eliminar-btn"
                                                                 title="Eliminar" data-bs-toggle="modal"
                                                                 data-bs-target="#confirmar-eliminacion-modal"><i
                                                                     class="bi bi-trash"></i></button>
+
+
                                                         </td>
                                             </tr>
                                             <% }) %>
@@ -400,7 +408,8 @@
                                             <th>#</th>
                                             <th>Estación</th>
                                             <th>Evento</th>
-                                            <th>Descanso</th>
+                                            <th>Desde</th>
+                                            <th>Hasta</th>
                                             <th class="text-center">Acc</th>
                                         </tr>
                                     </thead>
@@ -469,13 +478,22 @@
                                             </div>
 
                                             <!-- Hora descanso -->
-                                            <div class="input-group">
-                                                <label class="input-group-text" for="evtHrIni">Hora de
-                                                    descanso</label>
-                                                <select id="descanso-horario" class="form-select" name="hora" disabled>
-                                                    <option value=''>Seleccionar</option>
-                                                    <!-- DATA -->
-                                                </select>
+                                            <div class="d-flex flex-wrap flex-md-nowrap d-grid gap-2">
+                                                <div class="input-group">
+                                                    <label class="input-group-text">Desde</label>
+                                                    <select class="form-select descanso-horario" name="desde" disabled>
+                                                        <option value=''>Seleccionar</option>
+                                                        <!-- DATA -->
+                                                    </select>
+                                                </div>
+
+                                                <div class="input-group">
+                                                    <label class="input-group-text">Hasta</label>
+                                                    <select class="form-select descanso-horario" name="hasta" disabled>
+                                                        <option value=''>Seleccionar</option>
+                                                        <!-- DATA -->
+                                                    </select>
+                                                </div>
                                             </div>
 
                                             <div class="col-auto text-end">
@@ -603,14 +621,15 @@
         </div>
     </div>
 
-    <!-- MODAL AVISO DE ERROR -->
+    <!-- MODAL AVISOS ERROR EN FETCH -->
     <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
             <div class="modal-content">
                 <div class="modal-body">
-                    <div class="alert alert-danger m-0" role="alert">
-                        <b><i class="bi bi-exclamation-triangle"></i> Error en operación, intente nuevamente.</b>
+                    <div class="alert alert-danger text-center m-0" role="alert">
+                        <b><i class="bi bi-exclamation-triangle"></i> Fetch Error.</b><br>
+                        <small>Intente nuevamente, si el error persiste contacte con soporte.</small>
                     </div>
                 </div>
             </div>
@@ -662,6 +681,36 @@
                     <button id="confirmar-eliminar-btn" type="button" class="btn btn-danger"
                         data-bs-dismiss="modal">Si</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MODIFICAR ESTACION -->
+    <div class="modal fade" id="modificar-estacion-modal" tabindex="-1" data-bs-backdrop="static"
+        data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document"
+            style="max-width:fit-content">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleId"><i class="bi bi-pencil"></i> Modificar datos de estación
+                    </h5>
+                </div>
+                <form id="modificar-estacion-frm" class="d-grid gap-2 mt-2">
+                    <div class="modal-body">
+                        <input type="text" id="nueva-est-descripcion" class="form-control" name="estacion"
+                            placeholder="Nombre de la estación">
+                        <input type="file" id="nueva-est-img" class="form-control mt-2" name="nueva-imagen"
+                            accept=".jpg, .jpeg">
+                        <small class="text-muted">Imagen de estación: formato jpg 1000x500
+                            px</small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button id="confirmar-modificar-est-btn" type="button" class="btn btn-success"
+                            data-bs-dismiss="modal"><i class="bi bi-check-lg"></i>
+                            Modificar</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

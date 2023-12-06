@@ -17,12 +17,15 @@ const UPLOAD = MULTER({ storage: storage })
 ROUTER.get("/", CTRL.landingPage);
 ROUTER.get("/dataentry", CTRL.dataEntry);
 ROUTER.get("/dataquery", CTRL.dataQuery);
+ROUTER.get("/consultar-estacion/:id", CTRL.consultarEstacion);
 ROUTER.post("/agregar-estacion", UPLOAD.single("imagen"), CTRL.agregarEstacion);
+ROUTER.post("/modificar-datos-estacion/:id", UPLOAD.single("nueva-imagen"), CTRL.modificarEstacion);
 ROUTER.get("/eliminar-estacion/:id", CTRL.eliminarEstacion);
 ROUTER.post("/agregar-evento", CTRL.agregarEvento);
 ROUTER.get("/estaciones-horario-evento-seleccionado/:id/:inicio/:cierre", CTRL.estacionesHorarioEventoSeleccionado);
 ROUTER.post("/actualizar-horarios-y-estaciones-evt", CTRL.actualizarHorariosYestacionesDelEvt);
 ROUTER.get("/eliminar-evento/:id", CTRL.eliminarEvento);
+ROUTER.get("/buscar-usuario/:cedula", CTRL.buscarUsuario);
 ROUTER.post("/agregar-descanso", CTRL.agregarDescanso);
 ROUTER.get("/eliminar-descanso/:id", CTRL.eliminarDescanso);
 ROUTER.get("/consultar-descanso/:evento/:estacion", CTRL.consultarDescansoEstacion);

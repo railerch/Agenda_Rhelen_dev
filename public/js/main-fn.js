@@ -9,48 +9,49 @@ export function preloader(load = true) {
 }
 
 export function datos_de_registro() {
-    // Verificar que el usuario haya introducido datos
-
+    // Recolectar los datos introducidos por el usuario
     let contenedor = document.getElementById("datos-para-confirmar");
-    if (sessionStorage.getItem("datosRegistro")) {
-        contenedor.innerHTML = ""
-        let datos = JSON.parse(sessionStorage.getItem("datosRegistro"));
+    contenedor.innerHTML = ""
+    let datosTmp = document.querySelectorAll(".form-control, .form-select");
+    let datos = {};
+    datosTmp.forEach(el => {
+        let key = el.getAttribute("name").replaceAll("-", "_")
+        datos[`${key}`] = el.value;
+    })
 
-        // Lista de datos para verificar
-        let ul = document.createElement("ul");
+    // Almacenar datos para enviar al momento de finalizar el registro
+    sessionStorage.setItem("datosRegistro", JSON.stringify(datos));
 
-        for (let key in datos) {
-            let clave = key.replace("_", " ");
-            let valor = datos[key];
-            let li = document.createElement("li");
-            li.style.textTransform = "capitalize";
+    // Listar datos para verificacion visual por parte del usuario en pantalla 3
+    let ul = document.createElement("ul");
+    for (let key in datos) {
+        let clave = key.replace("_", " ");
+        let valor = datos[key] != "" ? datos[key] : "???";
+        let color = datos[key] != "" ? "unset" : "red";
+        let li = document.createElement("li");
+        li.style.textTransform = "capitalize";
+        li.innerHTML = `<b style="color:${color}">${clave}</b>: ${valor}`
+        ul.appendChild(li);
+    }
+    contenedor.appendChild(ul);
 
-            li.innerHTML = `<b>${clave}</b>: ${valor}`
-            ul.appendChild(li);
-        }
-
-        contenedor.appendChild(ul);
-
-        // Validar que los datos de registro esten completos
-        let keys = Object.keys(datos);
-
-        if (keys.length < 11) {
-            $("#datos-incompletos-modal").modal("show");
-        } else {
-            let display = "inline";
-
-            // Validar que no existan campos en blanco
-            for (let dat in datos) {
-                if (datos[dat] == "") {
-                    $("#datos-incompletos-modal").modal("show");
-                    display = "none"
-                }
-            }
-
-            document.getElementById("finalizar-btn").style.display = display;
-        }
+    // Validar que los datos de registro esten completos y no existan campos vacios
+    let keys = Object.keys(datos);
+    if (keys.length < 16) {
+        $("#datos-incompletos-modal").modal("show");
     } else {
-        contenedor.innerHTML = "<h3 class='text-danger'>Sin datos que mostrar.</h3>"
+        let display = "inline";
+
+        // Validar campos vacios
+        for (let dat in datos) {
+            if (datos[dat] == "") {
+                $("#datos-incompletos-modal").modal("show");
+                display = "none"
+            }
+        }
+
+        // Mostrar boton para finalizar el registro
+        document.getElementById("finalizar-btn").style.display = display;
     }
 }
 

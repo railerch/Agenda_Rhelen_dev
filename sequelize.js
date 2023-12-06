@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 const FS = require("fs");
 const PATH = require("path");
 const config = JSON.parse(FS.readFileSync(PATH.join(__dirname, "config", "config.json")));
-const conn = new Sequelize("agenda_rhelen", config[0].db.user, config[0].db.pass, {
+const conn = new Sequelize(config[0].db.data_base, config[0].db.user, config[0].db.pass, {
     host: "localhost",
     dialect: "mysql"
 });

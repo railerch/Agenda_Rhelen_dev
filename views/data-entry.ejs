@@ -80,7 +80,7 @@
                         <div class="input-group mt-3">
                             <div class="input-group-text col-4 col-md-2">Estación</div>
                             <select name="estacion" class="form-select" disabled>
-                                <option value="sinEstacion" selected>Seleccionar estación</option>
+                                <option value="" selected>Seleccionar estación</option>
                             </select>
                         </div>
 
@@ -118,24 +118,27 @@
                     <form id="datos-registro-frm" class="d-grid gap-2 my-3">
                         <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
-                                <div class="input-group-text col-3 col-md-2">Nombre</div>
-                                <input class="form-control" type="text" name="nombre" placeholder="Nombre completo">
+                                <div class="input-group-text col-3 col-md-2">Cedula</div>
+                                <input id="cedula" class="form-control" type="number" name="cedula"
+                                    placeholder="15999999" autocomplete="number">
                             </div>
                             <div class="input-group">
-                                <div class="input-group-text col-3 col-md-2">Cedula</div>
-                                <input class="form-control" type="text" name="cedula" placeholder="V15999999">
+                                <div class="input-group-text col-3 col-md-2">Nombre</div>
+                                <input class="form-control" type="text" name="nombre" placeholder="Nombre completo"
+                                    disabled>
                             </div>
                         </div>
 
                         <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Edad</div>
-                                <input class="form-control" type="number" min="0" name="edad">
+                                <input class="form-control" type="number" min="0" name="edad" disabled>
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Genero</div>
-                                <select class="form-select" name="genero">
-                                    <option value="Prefiero no decirlo" selected>Prefiero no decirlo</option>
+                                <select class="form-select" name="genero" disabled>
+                                    <option value="">Seleccione</option>
+                                    <option value="Prefiero no decirlo">Prefiero no decirlo</option>
                                     <option value="Masculino">Masculino</option>
                                     <option value="Femenino">Femenino</option>
                                 </select>
@@ -145,8 +148,8 @@
                         <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Estado</div>
-                                <select class="form-select" name="estado">
-                                    <option value="" selected>Seleccione</option>
+                                <select class="form-select" name="estado" disabled>
+                                    <option value="">Seleccione</option>
                                     <option value="Amazonas">Amazonas</option>
                                     <option value="Anzoátegui">Anzoátegui</option>
                                     <option value="Apure">Apure</option>
@@ -176,41 +179,43 @@
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Ciudad</div>
-                                <input class="form-control" type="text" name="ciudad">
+                                <input class="form-control" type="text" name="ciudad" disabled>
                             </div>
                         </div>
 
                         <div class="form-group d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Teléfono</div>
-                                <input class="form-control" type="text" name="telefono" placeholder="04149999999">
+                                <input class="form-control" type="text" name="telefono" placeholder="04149999999"
+                                    disabled>
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Correo</div>
-                                <input class="form-control" type="mail" name="correo" placeholder="usuario@dominio.com">
+                                <input class="form-control" type="mail" name="correo" placeholder="usuario@dominio.com"
+                                    disabled>
                             </div>
                         </div>
 
                         <div class="form-grou d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Instagram</div>
-                                <input class="form-control" type="text" name="instagram">
+                                <input class="form-control" type="text" name="instagram" disabled>
                             </div>
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Disciplina</div>
-                                <input class="form-control" type="text" name="disciplina">
+                                <input class="form-control" type="text" name="disciplina" disabled>
                             </div>
                         </div>
 
                         <div class="form-grou d-flex flex-wrap flex-md-nowrap d-grid gap-2">
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Categoria</div>
-                                <input class="form-control" type="text" name="categoria">
+                                <input class="form-control" type="text" name="categoria" disabled>
                             </div>
 
                             <div class="input-group">
                                 <div class="input-group-text col-3 col-md-2">Equipo</div>
-                                <input class="form-control" type="text" name="equipo">
+                                <input class="form-control" type="text" name="equipo" disabled>
                             </div>
                         </div>
                     </form>
@@ -247,7 +252,7 @@
                 <img class="img-fluid my-3" src="<%= server %>img/bannerFinal.jpg" alt="Banner principal">
             </div>
 
-            <!-- MODAL AVISOS -->
+            <!-- MODAL AVISO DATOS INCOMPLETOS EN VERIFICACION -->
             <div class="modal fade" id="datos-incompletos-modal" tabindex="-1" role="dialog"
                 aria-labelledby="modalTitleId" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
@@ -256,6 +261,35 @@
                             <div class="alert alert-danger m-0" role="alert">
                                 <b><i class="bi bi-exclamation-triangle"></i> Ud. debe proporcionar todos los datos
                                     solicitados para poder continuar.</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL CEDULA INVALIDA -->
+            <div class="modal fade" id="cedula-invalida-modal" tabindex="-1" role="dialog"
+                aria-labelledby="modalTitleId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="alert alert-danger text-center m-0" role="alert">
+                                <b><i class="bi bi-exclamation-triangle"></i> Cedula invalida.</b>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL AVISOS ERROR EN FETCH -->
+            <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="alert alert-danger text-center m-0" role="alert">
+                                <b><i class="bi bi-exclamation-triangle"></i> Fetch Error.</b><br>
+                                <small>Intente nuevamente, si el error persiste contacte con soporte.</small>
                             </div>
                         </div>
                     </div>
